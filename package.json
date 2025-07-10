@@ -5,7 +5,10 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "build": "echo 'No build step required'",
+    "docker:build": "docker build -t clarity-coach .",
+    "docker:run": "docker run -p 3000:3000 --env-file .env clarity-coach"
   },
   "dependencies": {
     "cors": "^2.8.5",

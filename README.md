@@ -33,14 +33,17 @@ http://localhost:3000
 ## 주요 기능
 
 - **목표 입력**: 사용자가 학습 목표를 입력
-- **전략 생성**: GPT API를 통해 개인화된 3가지 학습 전략 생성
+- **전략 설계 코치**: 주차별 상세한 학습 전략 생성
+- **학습 프로세스**: 3가지 학습 스타일별 전략 제안
 - **안전한 API 호출**: 백엔드 프록시를 통한 API 키 보호
 
 ## 파일 구조
 
 ```
-├── index.html          # 목표 입력 페이지
-├── process.html        # 전략 결과 페이지
+├── index.html          # 메인 목표 입력 페이지
+├── strategy.html       # 전략 설계 코치 페이지
+├── process.html        # 학습 프로세스 페이지
+├── strategy-agent.js   # 전략 설계 코치 에이전트
 ├── style.css           # 스타일시트
 ├── script.js           # 목표 입력 페이지 스크립트
 ├── server.js           # Express 백엔드 서버
@@ -59,4 +62,49 @@ http://localhost:3000
 - **프론트엔드**: HTML, CSS, JavaScript
 - **백엔드**: Node.js, Express
 - **API**: OpenAI GPT-3.5-turbo
-- **스타일**: Pretendard 폰트, Apple 스타일 디자인 
+- **스타일**: Pretendard 폰트, Apple 스타일 디자인
+
+## 배포 방법
+
+### Docker를 사용한 배포
+
+1. **Docker 이미지 빌드**
+```bash
+docker build -t clarity-coach .
+```
+
+2. **환경 변수 설정**
+```bash
+export OPENAI_API_KEY=your_openai_api_key_here
+```
+
+3. **Docker Compose로 실행**
+```bash
+docker-compose up -d
+```
+
+### 클라우드 배포
+
+#### Heroku
+```bash
+# Heroku CLI 설치 후
+heroku create your-app-name
+heroku config:set OPENAI_API_KEY=your_openai_api_key_here
+git push heroku main
+```
+
+#### Railway
+```bash
+# Railway CLI 설치 후
+railway login
+railway init
+railway variables set OPENAI_API_KEY=your_openai_api_key_here
+railway up
+```
+
+#### Vercel
+```bash
+# Vercel CLI 설치 후
+vercel
+# 환경 변수는 Vercel 대시보드에서 설정
+``` 
