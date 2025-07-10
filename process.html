@@ -281,19 +281,29 @@
       const tabs = document.querySelectorAll('.strategy-tab');
       const selectedIndex = Array.from(tabs).indexOf(activeTab);
       
-      // Planner Agent의 분석 결과를 Strategy Agent로 전달
-      const plannerData = {
-        main_goal: goal,
-        selected_strategy: selectedIndex,
-        strategy_name: strategies[selectedIndex].title,
-        strategy_description: strategies[selectedIndex].description,
-        duration: "4주", // 기본값, 필요시 사용자가 수정 가능
-        tasks_per_week: 2, // 기본값, 필요시 사용자가 수정 가능
-        keywords: extractKeywords(goal) // 목표에서 키워드 추출
+      // MCP 형식으로 Planner Agent 데이터 구성
+      const plannerMCPData = {
+        role: "PlannerAgent",
+        intent: "Analyze user goal and provide learning strategy options",
+        context: {
+          from: "User",
+          target_goal: goal,
+          user_preference: selectedIndex
+        },
+        payload: {
+          goal: goal,
+          timeline: "4주",
+          difficulty: "intermediate",
+          learning_style: strategies[selectedIndex].title,
+          strategy_description: strategies[selectedIndex].description,
+          keywords: extractKeywords(goal),
+          selected_strategy_index: selectedIndex,
+          available_strategies: strategies.map(s => s.title)
+        }
       };
       
-      // localStorage에 Planner Agent 데이터 저장
-      localStorage.setItem('planner_data', JSON.stringify(plannerData));
+      // localStorage에 MCP 형식의 Planner Agent 데이터 저장
+      localStorage.setItem('planner_mcp_data', JSON.stringify(plannerMCPData));
       
       // Strategy Agent 페이지로 이동
       window.location.href = 'strategy.html?from=planner';

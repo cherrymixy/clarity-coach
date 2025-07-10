@@ -247,37 +247,45 @@
       const fromPlanner = urlParams.get('from');
       
       if (fromPlanner === 'planner') {
-        const plannerData = localStorage.getItem('planner_data');
-        if (plannerData) {
+        const plannerMCPData = localStorage.getItem('planner_mcp_data');
+        if (plannerMCPData) {
           try {
-            const data = JSON.parse(plannerData);
+            const mcpData = JSON.parse(plannerMCPData);
             
-            // 폼 필드 채우기
-            document.getElementById('main-goal').value = data.main_goal || '';
-            document.getElementById('duration').value = data.duration || '4주';
-            document.getElementById('tasks-per-week').value = data.tasks_per_week || 2;
-            
-            // 키워드 설정
-            keywords = data.keywords || [];
-            renderKeywords();
-            
-            // Planner Agent 정보 표시
-            showPlannerInfo(data);
+            // MCP 형식 검증
+            if (mcpData.role === 'PlannerAgent' && mcpData.payload) {
+              const payload = mcpData.payload;
+              
+              // 폼 필드 채우기
+              document.getElementById('main-goal').value = payload.goal || '';
+              document.getElementById('duration').value = payload.timeline || '4주';
+              document.getElementById('tasks-per-week').value = 2; // 기본값
+              
+              // 키워드 설정
+              keywords = payload.keywords || [];
+              renderKeywords();
+              
+              // Planner Agent MCP 정보 표시
+              showPlannerMCPInfo(mcpData);
+              
+            } else {
+              console.error('Invalid MCP format from Planner Agent');
+            }
             
           } catch (error) {
-            console.error('Planner 데이터 파싱 오류:', error);
+            console.error('Planner MCP 데이터 파싱 오류:', error);
           }
         }
       }
     }
     
-    // Planner Agent 정보 표시
-    function showPlannerInfo(data) {
+    // Planner Agent MCP 정보 표시
+    function showPlannerMCPInfo(mcpData) {
       const container = document.querySelector('.container');
       const form = document.querySelector('.strategy-form');
       
       const plannerInfo = document.createElement('div');
-      plannerInfo.className = 'planner-info';
+      plannerInfo.className = 'planner-mcp-info';
       plannerInfo.style.cssText = `
         background: #e3f2fd;
         padding: 20px;
@@ -286,11 +294,15 @@
         border-left: 4px solid #2196f3;
       `;
       
+      const payload = mcpData.payload;
       plannerInfo.innerHTML = `
-        <h3 style="margin-top: 0; color: #2196f3;">📋 Planner Agent 분석 결과</h3>
-        <p><strong>선택된 전략:</strong> ${data.strategy_name}</p>
-        <p><strong>전략 설명:</strong> ${data.strategy_description}</p>
-        <p><em>아래 폼에서 세부 사항을 조정하고 주차별 상세 전략을 생성하세요.</em></p>
+        <h3 style="margin-top: 0; color: #2196f3;">📋 Planner Agent (MCP) 분석 결과</h3>
+        <p><strong>Role:</strong> ${mcpData.role}</p>
+        <p><strong>Intent:</strong> ${mcpData.intent}</p>
+        <p><strong>선택된 학습 스타일:</strong> ${payload.learning_style}</p>
+        <p><strong>전략 설명:</strong> ${payload.strategy_description}</p>
+        <p><strong>난이도:</strong> ${payload.difficulty}</p>
+        <p><em>아래 폼에서 세부 사항을 조정하고 Strategy Agent가 주차별 상세 전략을 생성합니다.</em></p>
       `;
       
       container.insertBefore(plannerInfo, form);
@@ -365,8 +377,22 @@
         showLoading(true);
         hideError();
         
-        const strategyData = await strategyAgent.generateStrategy(goalData);
-        const html = strategyAgent.renderStrategy(strategyData);
+        // Planner Agent의 MCP 데이터 확인
+        const plannerMCPData = localStorage.getItem('planner_mcp_data');
+        let inputData = goalData;
+        
+        if (plannerMCPData) {
+          try {
+            const mcpData = JSON.parse(plannerMCPData);
+            // MCP 형식의 데이터를 Strategy Agent에 전달
+            inputData = mcpData;
+          } catch (error) {
+            console.error('MCP 데이터 파싱 오류:', error);
+          }
+        }
+        
+        const mcpResponse = await strategyAgent.generateStrategy(inputData);
+        const html = strategyAgent.renderMCPStrategy(mcpResponse);
         
         strategyResult.innerHTML = html;
         showLoading(false);
