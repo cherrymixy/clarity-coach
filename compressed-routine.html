@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>압축 루틴 전략가</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .input-group {
+      margin-bottom: 20px;
+    }
+    
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .input-group input, .input-group select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.2s;
+    }
+    
+    .input-group input:focus, .input-group select:focus {
+      outline: none;
+      border-color: #007aff;
+    }
+    
+    .time-inputs {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    
+    .time-inputs input {
+      width: 80px;
+    }
+    
+    .strategy-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-left: 4px solid #007aff;
+    }
+    
+    .strategy-card h3 {
+      margin-top: 0;
+      color: #007aff;
+      font-size: 1.3rem;
+    }
+    
+    .week-plan {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+    
+    .week-plan h4 {
+      margin-top: 0;
+      color: #28a745;
+    }
+    
+    .routine-summary {
+      background: #e3f2fd;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+    
+    .routine-summary h4 {
+      margin-top: 0;
+      color: #1976d2;
+    }
+    
+    .time-tips {
+      background: #fff3e0;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+    
+    .time-tips h4 {
+      margin-top: 0;
+      color: #f57c00;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+    
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #007aff;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 압축 루틴 전략가</h1>
+    <p style="color: #666; margin-bottom: 30px;">최단 시간 내 핵심만 익히는 맞춤 루틴을 제안해드립니다</p>
+    
+    <div id="input-form">
+      <div class="input-group">
+        <label for="goal-input">🎯 목표 개요</label>
+        <textarea id="goal-input" placeholder="예: 영어로 미술사에 대해 말할 수 있게 되기" rows="3"></textarea>
+      </div>
+      
+      <div class="input-group">
+        <label>⏰ 주간 실행 가능 시간</label>
+        <div class="time-inputs">
+          <input type="number" id="hours" placeholder="시간" min="0" max="168">
+          <span>시간</span>
+          <input type="number" id="minutes" placeholder="분" min="0" max="59">
+          <span>분</span>
+        </div>
+      </div>
+      
+      <div class="input-group">
+        <label for="duration">📅 희망 기간</label>
+        <select id="duration">
+          <option value="">기간 선택</option>
+          <option value="1">1주</option>
+          <option value="2">2주</option>
+          <option value="3">3주</option>
+          <option value="4">4주</option>
+          <option value="6">6주</option>
+          <option value="8">8주</option>
+        </select>
+      </div>
+      
+      <button id="generate-btn" onclick="generateCompressedRoutine()">압축 루틴 생성하기</button>
+    </div>
+    
+    <div id="result-container" style="display: none;">
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>압축 루틴을 생성하고 있습니다...</p>
+      </div>
+      
+      <div id="result-content" style="display: none;">
+        <div id="goal-summary" class="strategy-card"></div>
+        <div id="weekly-strategy" class="strategy-card"></div>
+        <div id="routine-summary" class="strategy-card"></div>
+        <div id="time-tips" class="strategy-card"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function generateCompressedRoutine() {
+      const goal = document.getElementById('goal-input').value.trim();
+      const hours = parseInt(document.getElementById('hours').value) || 0;
+      const minutes = parseInt(document.getElementById('minutes').value) || 0;
+      const duration = document.getElementById('duration').value;
+      
+      if (!goal || !hours && !minutes || !duration) {
+        alert('모든 필드를 입력해주세요!');
+        return;
+      }
+      
+      const totalMinutes = hours * 60 + minutes;
+      
+      // 결과 컨테이너 표시
+      document.getElementById('result-container').style.display = 'block';
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('result-content').style.display = 'none';
+      
+      try {
+        const response = await fetch('/api/compressed-routine', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            goal: goal,
+            weeklyTime: totalMinutes,
+            duration: parseInt(duration)
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        
+        displayResults(data);
+        
+      } catch (error) {
+        console.error('에러:', error);
+        document.getElementById('loading').innerHTML = `
+          <p style="color: #d32f2f;">오류가 발생했습니다: ${error.message}</p>
+          <button onclick="generateCompressedRoutine()">다시 시도</button>
+        `;
+      }
+    }
+    
+    function displayResults(data) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('result-content').style.display = 'block';
+      
+      // 목표 요약
+      document.getElementById('goal-summary').innerHTML = `
+        <h3>🎯 목표 분석</h3>
+        <p><strong>목표:</strong> ${data.goal}</p>
+        <p><strong>주간 투자 시간:</strong> ${Math.floor(data.weeklyTime / 60)}시간 ${data.weeklyTime % 60}분</p>
+        <p><strong>총 기간:</strong> ${data.duration}주</p>
+      `;
+      
+      // 주간 전략
+      document.getElementById('weekly-strategy').innerHTML = `
+        <h3>📅 주차별 집중 테마</h3>
+        ${data.weeklyStrategy}
+      `;
+      
+      // 루틴 요약
+      document.getElementById('routine-summary').innerHTML = `
+        <h3>⏰ 핵심 실행 루틴</h3>
+        ${data.routineSummary}
+      `;
+      
+      // 시간 절약 팁
+      document.getElementById('time-tips').innerHTML = `
+        <h3>💡 시간 절약 팁</h3>
+        ${data.timeTips}
+      `;
+    }
+  </script>
+</body>
+</html>
