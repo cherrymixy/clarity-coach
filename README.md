@@ -4,19 +4,21 @@
 
 ## 설치 및 실행
 
-### 1. 의존성 설치
+### 방법 1: 로컬 개발 환경
+
+#### 1. 의존성 설치
 ```bash
 npm install
 ```
 
-### 2. 환경 변수 설정
+#### 2. 환경 변수 설정
 프로젝트 루트에 `.env` 파일을 생성하고 OpenAI API 키를 설정하세요:
 ```
 OPENAI_API_KEY=your_openai_api_key_here
 PORT=3000
 ```
 
-### 3. 서버 실행
+#### 3. 서버 실행
 ```bash
 # 개발 모드 (nodemon 사용)
 npm run dev
@@ -25,9 +27,46 @@ npm run dev
 npm start
 ```
 
-### 4. 브라우저에서 접속
+#### 4. 브라우저에서 접속
 ```
 http://localhost:3000
+```
+
+### 방법 2: Docker 배포
+
+#### 1. 환경 변수 설정
+```bash
+export OPENAI_API_KEY=your_openai_api_key_here
+```
+
+#### 2. 배포 스크립트 실행
+```bash
+./deploy.sh
+```
+
+#### 3. 수동 Docker 배포
+```bash
+# Docker 이미지 빌드
+docker-compose build
+
+# 컨테이너 실행
+docker-compose up -d
+```
+
+### 방법 3: 클라우드 배포
+
+#### Heroku 배포
+```bash
+# Heroku CLI 설치 후
+heroku create your-app-name
+heroku config:set OPENAI_API_KEY=your_openai_api_key_here
+git push heroku main
+```
+
+#### Vercel 배포
+```bash
+# Vercel CLI 설치 후
+vercel --env OPENAI_API_KEY=your_openai_api_key_here
 ```
 
 ## 주요 기능
@@ -41,14 +80,19 @@ http://localhost:3000
 
 ```
 ├── index.html              # 목표 입력 페이지
-├── process.html            # 전략 결과 페이지
-├── scheduler.html          # 일일 일정표 생성 페이지
+├── process.html            # 전략 결과 페이지 (Strategy Agent)
+├── scheduler.html          # 일일 일정표 생성 페이지 (Scheduler Agent)
+├── strategy-agent.js       # Strategy Agent 로직
 ├── scheduler-agent.js      # Scheduler Agent 로직
-├── scheduler-style.css     # 일정표 전용 스타일
+├── scheduler-style.css     # 일일 일정표 전용 스타일
 ├── style.css               # 공통 스타일시트
 ├── script.js               # 목표 입력 페이지 스크립트
 ├── server.js               # Express 백엔드 서버
 ├── package.json            # 프로젝트 설정
+├── Dockerfile              # Docker 배포 설정
+├── docker-compose.yml      # Docker Compose 설정
+├── deploy.sh               # 배포 스크립트
+├── .env.example            # 환경 변수 예시
 └── .env                   # 환경 변수 (API 키 등)
 ```
 

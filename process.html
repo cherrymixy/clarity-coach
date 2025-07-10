@@ -86,6 +86,11 @@
     .day-section li {
       margin-bottom: 4px;
     }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -107,16 +112,80 @@
     
     <div id="strategy-result" class="result-box"></div>
   </div>
+  <script src="strategy-agent.js"></script>
   <script>
+    let strategyAgent;
+    let strategies = [];
+    let isLoading = true;
+
+    // 페이지 로드 시 초기화
+    document.addEventListener('DOMContentLoaded', async function() {
+      strategyAgent = new StrategyAgent();
+      await loadStrategies();
+    });
+
     // 목표 불러오기
     const goal = localStorage.getItem('user_goal') || '';
     document.getElementById('goal-view').textContent = `목표: ${goal}`;
 
-    // 전략 데이터
-    const strategies = [
-      {
-        title: "🎯 체계적 계획형 접근법",
-        description: "체계적이고 계획을 세우는 것을 좋아하는 사람에게 적합",
+    // Strategy Agent를 통해 전략 생성
+    async function loadStrategies() {
+      try {
+        // 로딩 상태 표시
+        document.getElementById('strategy-result').innerHTML = `
+          <div style="text-align: center; padding: 40px;">
+            <div style="font-size: 1.2rem; color: #666; margin-bottom: 20px;">🤖 Strategy Agent가 전략을 생성하고 있습니다...</div>
+            <div style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #007aff; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+          </div>
+        `;
+
+        // 3가지 전략 타입으로 전략 생성
+        const strategyTypes = ['체계적 계획형', '실습 중심 몰입형', '감각적 체험형'];
+        const strategyPromises = strategyTypes.map(async (type, index) => {
+          try {
+            const strategy = await strategyAgent.generateWeeklyStrategy(goal, 1);
+            return {
+              index: index,
+              strategy: strategy
+            };
+          } catch (error) {
+            console.error(`전략 ${index + 1} 생성 실패:`, error);
+            return {
+              index: index,
+              strategy: strategyAgent.createDefaultStrategy(goal, 1)
+            };
+          }
+        });
+
+        const results = await Promise.all(strategyPromises);
+        
+        // 전략 데이터 구성
+        strategies = results.map(result => {
+          const strategy = result.strategy;
+          return {
+            title: strategy.strategyTitle,
+            description: strategy.strategyDescription,
+            strategyType: strategy.strategyType,
+            days: strategy.dailyTasks.map(task => ({
+              day: `${task.dayNumber}일차`,
+              title: task.title,
+              details: task.details
+            }))
+          };
+        });
+
+        isLoading = false;
+        
+        // 첫 번째 전략 표시
+        showStrategy(0);
+        
+      } catch (error) {
+        console.error('전략 로딩 실패:', error);
+                 // 기본 전략으로 폴백
+         strategies = [
+          {
+            title: "🎯 체계적 계획형 접근법",
+            description: "체계적이고 계획을 세우는 것을 좋아하는 사람에게 적합",
         days: [
           {
             day: "1일차",
@@ -235,6 +304,10 @@
 
     // 전략 표시 함수
     function showStrategy(index) {
+      if (isLoading) {
+        return;
+      }
+
       // 탭 활성화
       document.querySelectorAll('.strategy-tab').forEach((tab, i) => {
         tab.classList.toggle('active', i === index);
@@ -269,10 +342,10 @@
       
       html += '</div>';
       resultBox.innerHTML = html;
-    }
 
-    // 페이지 로드 시 첫 번째 전략 표시
-    showStrategy(0);
+      // 선택된 전략을 localStorage에 저장 (Scheduler Agent에서 사용)
+      localStorage.setItem('selected_strategy', JSON.stringify(strategy));
+    }
   </script>
 </body>
 </html> 

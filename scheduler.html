@@ -84,8 +84,28 @@
     // Strategy Agent의 전략 데이터 로드
     function loadStrategyData() {
       const goal = localStorage.getItem('user_goal') || '학습 목표';
+      const selectedStrategy = localStorage.getItem('selected_strategy');
       
-      // Strategy Agent의 전략 데이터 (process.html에서 가져온 구조)
+      if (selectedStrategy) {
+        try {
+          const strategy = JSON.parse(selectedStrategy);
+          // Strategy Agent에서 받은 데이터를 Scheduler Agent 형식으로 변환
+          window.strategyData = [{
+            strategyType: strategy.strategyType || '체계적 계획형',
+            strategyTitle: strategy.title,
+            strategyDescription: strategy.description,
+            dailyTasks: strategy.days.map(day => ({
+              title: day.title,
+              details: day.details
+            }))
+          }];
+          return;
+        } catch (error) {
+          console.error('전략 데이터 파싱 실패:', error);
+        }
+      }
+      
+      // 기본 전략 데이터 (fallback)
       window.strategyData = [
         {
           strategyType: '체계적 계획형',
