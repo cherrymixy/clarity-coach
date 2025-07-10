@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>목표 입력</title>
+  <title>하루 계획 코치</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
@@ -11,12 +11,37 @@
 </head>
 <body>
   <div class="container">
-    <h1>🎯 목표 입력</h1>
-    <textarea id="goal-input" placeholder="목표를 입력하세요." rows="2"></textarea>
-    <button id="generate-btn">전략 생성하기</button>
-    <div id="result-box" class="result-box"></div>
-    <div id="output" style="white-space: pre-line; margin-top: 20px;"></div>
+    <h1>🎯 하루 계획 코치</h1>
+    <p class="subtitle">오늘 하루를 현실적이고 효과적으로 계획해보세요!</p>
+    
+    <div class="input-section">
+      <textarea id="task-input" placeholder="오늘 해야 할 일들을 입력해주세요.&#10;예시:&#10;- 10시 회의&#10;- 오후 2시까지 보고서 작성&#10;- 저녁 7시 운동&#10;- 밤 10시까지 독서" rows="6"></textarea>
+      
+      <div class="time-info">
+        <label for="available-time">오늘 사용 가능한 시간:</label>
+        <select id="available-time">
+          <option value="2">2시간</option>
+          <option value="4" selected>4시간</option>
+          <option value="6">6시간</option>
+          <option value="8">8시간</option>
+          <option value="10">10시간</option>
+        </select>
+      </div>
+      
+      <button id="plan-btn">📅 하루 계획 만들기</button>
+    </div>
+    
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>현실적인 계획을 짜고 있어요...</p>
+    </div>
+    
+    <div id="result-box" class="result-box hidden">
+      <h2>📋 오늘의 계획표</h2>
+      <div id="schedule-output"></div>
+      <button id="new-plan-btn" class="secondary-btn">🔄 새 계획 만들기</button>
+    </div>
   </div>
-  <script src="script.js"></script>
+  <script src="planner.js"></script>
 </body>
 </html>

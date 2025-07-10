@@ -1,7 +1,7 @@
 {
-  "name": "clarity-coach",
+  "name": "planner-agent",
   "version": "1.0.0",
-  "description": "목표 기반 학습 전략 생성 앱",
+  "description": "AI 기반 하루 계획 코치 - 현실적이고 효과적인 일정 설계",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -17,7 +17,7 @@
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
-  "keywords": [],
+  "keywords": ["planner", "ai", "schedule", "productivity", "time-management"],
   "author": "",
   "license": "ISC"
 }
