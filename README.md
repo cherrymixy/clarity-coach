@@ -34,18 +34,22 @@ http://localhost:3000
 
 - **목표 입력**: 사용자가 학습 목표를 입력
 - **전략 생성**: GPT API를 통해 개인화된 3가지 학습 전략 생성
+- **일일 일정표 생성**: Strategy Agent의 전략을 받아서 상세한 일일 일정표 생성
 - **안전한 API 호출**: 백엔드 프록시를 통한 API 키 보호
 
 ## 파일 구조
 
 ```
-├── index.html          # 목표 입력 페이지
-├── process.html        # 전략 결과 페이지
-├── style.css           # 스타일시트
-├── script.js           # 목표 입력 페이지 스크립트
-├── server.js           # Express 백엔드 서버
-├── package.json        # 프로젝트 설정
-└── .env               # 환경 변수 (API 키 등)
+├── index.html              # 목표 입력 페이지
+├── process.html            # 전략 결과 페이지
+├── scheduler.html          # 일일 일정표 생성 페이지
+├── scheduler-agent.js      # Scheduler Agent 로직
+├── scheduler-style.css     # 일정표 전용 스타일
+├── style.css               # 공통 스타일시트
+├── script.js               # 목표 입력 페이지 스크립트
+├── server.js               # Express 백엔드 서버
+├── package.json            # 프로젝트 설정
+└── .env                   # 환경 변수 (API 키 등)
 ```
 
 ## 보안

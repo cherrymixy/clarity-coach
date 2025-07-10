@@ -23,6 +23,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('.')); // 현재 디렉토리의 정적 파일 제공
 
+// Scheduler Agent 페이지 라우트
+app.get('/scheduler', (req, res) => {
+  res.sendFile(__dirname + '/scheduler.html');
+});
+
 // OpenAI API 프록시 엔드포인트
 app.post('/api/gpt', async (req, res) => {
   try {
