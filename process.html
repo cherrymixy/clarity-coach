@@ -100,6 +100,12 @@
     </div>
     
     <div id="strategy-result" class="result-box"></div>
+    
+    <div style="margin-top: 30px; text-align: center;">
+      <button onclick="goToStrategyAgent()" class="btn" style="width: auto; padding: 12px 24px;">
+        🎯 주차별 상세 전략 받기
+      </button>
+    </div>
   </div>
   <script>
     // 목표 불러오기
@@ -267,6 +273,54 @@
 
     // 페이지 로드 시 첫 번째 전략 표시
     showStrategy(0);
+    
+    // Strategy Agent로 이동하는 함수
+    function goToStrategyAgent() {
+      // 현재 선택된 전략 인덱스 가져오기
+      const activeTab = document.querySelector('.strategy-tab.active');
+      const tabs = document.querySelectorAll('.strategy-tab');
+      const selectedIndex = Array.from(tabs).indexOf(activeTab);
+      
+      // Planner Agent의 분석 결과를 Strategy Agent로 전달
+      const plannerData = {
+        main_goal: goal,
+        selected_strategy: selectedIndex,
+        strategy_name: strategies[selectedIndex].title,
+        strategy_description: strategies[selectedIndex].description,
+        duration: "4주", // 기본값, 필요시 사용자가 수정 가능
+        tasks_per_week: 2, // 기본값, 필요시 사용자가 수정 가능
+        keywords: extractKeywords(goal) // 목표에서 키워드 추출
+      };
+      
+      // localStorage에 Planner Agent 데이터 저장
+      localStorage.setItem('planner_data', JSON.stringify(plannerData));
+      
+      // Strategy Agent 페이지로 이동
+      window.location.href = 'strategy.html?from=planner';
+    }
+    
+    // 목표에서 키워드 추출하는 함수
+    function extractKeywords(goalText) {
+      // 간단한 키워드 추출 로직
+      const commonKeywords = ['학습', '연습', '개발', '디자인', '영어', '프로그래밍', '미술', '음악', '운동', '요리'];
+      const extracted = [];
+      
+      commonKeywords.forEach(keyword => {
+        if (goalText.includes(keyword)) {
+          extracted.push(keyword);
+        }
+      });
+      
+      // 목표에서 주요 단어들 추출
+      const words = goalText.split(/[\s,]+/).filter(word => word.length > 1);
+      words.slice(0, 3).forEach(word => {
+        if (!extracted.includes(word)) {
+          extracted.push(word);
+        }
+      });
+      
+      return extracted.length > 0 ? extracted : ['목표 달성', '학습', '성장'];
+    }
   </script>
 </body>
 </html> 

@@ -31,12 +31,31 @@ JSON 형태로 주차별 계획을 제공해. 각 주차마다 테마와 구체�
   // 목표 데이터를 받아서 전략을 생성하는 메서드
   async generateStrategy(goalData) {
     try {
+      // Planner Agent 데이터 확인
+      const plannerData = localStorage.getItem('planner_data');
+      let plannerContext = '';
+      
+      if (plannerData) {
+        try {
+          const planner = JSON.parse(plannerData);
+          plannerContext = `
+
+📋 Planner Agent 분석 결과:
+- 선택된 학습 스타일: ${planner.strategy_name}
+- 전략 설명: ${planner.strategy_description}
+
+위 Planner Agent의 분석을 바탕으로, 해당 학습 스타일에 최적화된 주차별 전략을 설계해주세요.`;
+        } catch (error) {
+          console.error('Planner 데이터 파싱 오류:', error);
+        }
+      }
+
       const userPrompt = `다음 목표 정보를 바탕으로 주차별 전략을 설계해주세요:
 
 주요 목표: ${goalData.main_goal}
 기간: ${goalData.duration}
 키워드: ${goalData.keywords.join(', ')}
-주당 과제 수: ${goalData.tasks_per_week}개
+주당 과제 수: ${goalData.tasks_per_week}개${plannerContext}
 
 위 정보를 바탕으로 구체적이고 실행 가능한 주차별 전략을 JSON 형태로 제공해주세요.`;
 

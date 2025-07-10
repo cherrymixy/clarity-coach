@@ -241,6 +241,61 @@
     const errorMessage = document.getElementById('error-message');
     const strategyResult = document.getElementById('strategy-result');
     
+    // Planner Agent에서 온 데이터 확인 및 폼 채우기
+    function loadPlannerData() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const fromPlanner = urlParams.get('from');
+      
+      if (fromPlanner === 'planner') {
+        const plannerData = localStorage.getItem('planner_data');
+        if (plannerData) {
+          try {
+            const data = JSON.parse(plannerData);
+            
+            // 폼 필드 채우기
+            document.getElementById('main-goal').value = data.main_goal || '';
+            document.getElementById('duration').value = data.duration || '4주';
+            document.getElementById('tasks-per-week').value = data.tasks_per_week || 2;
+            
+            // 키워드 설정
+            keywords = data.keywords || [];
+            renderKeywords();
+            
+            // Planner Agent 정보 표시
+            showPlannerInfo(data);
+            
+          } catch (error) {
+            console.error('Planner 데이터 파싱 오류:', error);
+          }
+        }
+      }
+    }
+    
+    // Planner Agent 정보 표시
+    function showPlannerInfo(data) {
+      const container = document.querySelector('.container');
+      const form = document.querySelector('.strategy-form');
+      
+      const plannerInfo = document.createElement('div');
+      plannerInfo.className = 'planner-info';
+      plannerInfo.style.cssText = `
+        background: #e3f2fd;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border-left: 4px solid #2196f3;
+      `;
+      
+      plannerInfo.innerHTML = `
+        <h3 style="margin-top: 0; color: #2196f3;">📋 Planner Agent 분석 결과</h3>
+        <p><strong>선택된 전략:</strong> ${data.strategy_name}</p>
+        <p><strong>전략 설명:</strong> ${data.strategy_description}</p>
+        <p><em>아래 폼에서 세부 사항을 조정하고 주차별 상세 전략을 생성하세요.</em></p>
+      `;
+      
+      container.insertBefore(plannerInfo, form);
+    }
+    
     // 키워드 추가
     function addKeyword() {
       const keyword = keywordInput.value.trim();
@@ -340,6 +395,11 @@
     function hideError() {
       errorMessage.style.display = 'none';
     }
+    
+    // 페이지 로드 시 Planner 데이터 로드
+    document.addEventListener('DOMContentLoaded', function() {
+      loadPlannerData();
+    });
   </script>
 </body>
 </html>
