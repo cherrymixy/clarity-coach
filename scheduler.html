@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="scheduler-style.css">
+  <link rel="stylesheet" href="mcp-scheduler-style.css">
 </head>
 <body>
   <div class="container">
@@ -67,16 +67,33 @@
         <textarea id="mcpData" rows="10" placeholder="위의 예시 형식으로 MCP 데이터를 입력하세요..."></textarea>
       </div>
       
-      <button class="generate-btn" onclick="generateFromMCPInput()">� MCP 데이터로 스케줄 생성</button>
+      <button class="generate-btn" onclick="generateFromMCPInput()">🚀 MCP 데이터로 스케줄 생성</button>
     </div>
     
     <!-- 스케줄 결과 -->
     <div id="schedule-result"></div>
+    
+    <!-- 텍스트 형식 출력 -->
+    <div id="text-result" style="display: none;">
+      <div class="text-output-section">
+        <h3>📝 텍스트 형식 스케줄</h3>
+        <div class="format-buttons">
+          <button class="format-btn active" onclick="showTextFormat(1)">형식 1: [HH:MM] 활동명 (N분)</button>
+          <button class="format-btn" onclick="showTextFormat(2)">형식 2: 오전/오후 HH시MM분~HH시MM분: 활동명</button>
+        </div>
+        <div class="text-output">
+          <pre id="text-output-content"></pre>
+        </div>
+        <button class="copy-btn" onclick="copyToClipboard()">📋 클립보드에 복사</button>
+      </div>
+    </div>
   </div>
 
   <script src="scheduler-agent.js"></script>
   <script>
     let schedulerAgent;
+    let currentWeeklySchedule;
+    let currentTextFormat = 1;
     
     // 페이지 로드 시 초기화
     document.addEventListener('DOMContentLoaded', function() {
@@ -167,18 +184,50 @@
       };
       
       // Scheduler Agent로 MCP 스케줄 생성
-      const weeklySchedule = schedulerAgent.generateDailyScheduleFromMCP(
+      currentWeeklySchedule = schedulerAgent.generateDailyScheduleFromMCP(
         mcpData, 
         customSettings
       );
       
       // HTML로 렌더링
-      const scheduleHTML = schedulerAgent.renderMCPScheduleHTML(weeklySchedule);
+      const scheduleHTML = schedulerAgent.renderMCPScheduleHTML(currentWeeklySchedule);
       document.getElementById('schedule-result').innerHTML = scheduleHTML;
+      
+      // 텍스트 형식도 생성
+      showTextFormat(1);
+      document.getElementById('text-result').style.display = 'block';
       
       // 스크롤을 결과로 이동
       document.getElementById('schedule-result').scrollIntoView({ 
         behavior: 'smooth' 
+      });
+    }
+    
+    // 텍스트 형식 표시
+    function showTextFormat(format) {
+      if (!currentWeeklySchedule) return;
+      
+      currentTextFormat = format;
+      
+      // 버튼 활성화 상태 변경
+      document.querySelectorAll('.format-btn').forEach((btn, index) => {
+        btn.classList.toggle('active', index === format - 1);
+      });
+      
+      // 텍스트 생성
+      const textContent = schedulerAgent.generateTimeScheduleText(currentWeeklySchedule, format);
+      document.getElementById('text-output-content').textContent = textContent;
+    }
+    
+    // 클립보드에 복사
+    function copyToClipboard() {
+      const textContent = document.getElementById('text-output-content').textContent;
+      
+      navigator.clipboard.writeText(textContent).then(() => {
+        alert('스케줄이 클립보드에 복사되었습니다!');
+      }).catch(err => {
+        console.error('클립보드 복사 실패:', err);
+        alert('클립보드 복사에 실패했습니다.');
       });
     }
   </script>

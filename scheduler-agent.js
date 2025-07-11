@@ -68,7 +68,8 @@ class SchedulerAgent {
       activities: [],
       breaks: [],
       motivation: this.generateMotivation(day, dayStep, goal),
-      tips: this.generateTips(dayStep, day)
+      tips: this.generateTips(dayStep, day),
+      timeSchedule: [] // 시간별 스케줄 추가
     };
 
     // 활동 분해 및 시간 배치
@@ -78,6 +79,7 @@ class SchedulerAgent {
     let currentTime = this.availableHours.start;
     let activityIndex = 0;
     let breakCount = 0;
+    let timeScheduleIndex = 0;
 
     while (currentTime < this.availableHours.end && activityIndex < activities.length) {
       const activity = activities[activityIndex];
@@ -95,8 +97,20 @@ class SchedulerAgent {
         friendlyDescription: this.makeFriendlyDescription(activity, day)
       });
 
+      // 시간별 스케줄에 추가 (지정된 형식)
+      const startTime = this.formatTimeForSchedule(currentTime);
+      const endTime = this.formatTimeForSchedule(currentTime + activityDuration);
+      const durationMinutes = Math.round(activityDuration * 60);
+      
+      schedule.timeSchedule.push({
+        format1: `[${startTime}] ${activity.title} (${durationMinutes}분)`,
+        format2: `${this.getTimePeriod(currentTime)} ${startTime}~${endTime}: ${activity.title}`,
+        activity: activity
+      });
+
       currentTime += activityDuration;
       activityIndex++;
+      timeScheduleIndex++;
 
       // 쉬는 시간 추가 (2시간마다 또는 활동 후)
       if (breakCount < 2 && currentTime < this.availableHours.end - 1) {
@@ -107,12 +121,38 @@ class SchedulerAgent {
           duration: breakDuration,
           friendlyDescription: this.generateBreakMessage(day, breakCount)
         });
+
+        // 쉬는 시간도 시간별 스케줄에 추가
+        const breakStartTime = this.formatTimeForSchedule(currentTime);
+        const breakEndTime = this.formatTimeForSchedule(currentTime + breakDuration);
+        
+        schedule.timeSchedule.push({
+          format1: `[${breakStartTime}] 휴식 (30분)`,
+          format2: `${this.getTimePeriod(currentTime)} ${breakStartTime}~${breakEndTime}: 휴식`,
+          activity: { title: "휴식", type: "break" }
+        });
+
         currentTime += breakDuration;
         breakCount++;
+        timeScheduleIndex++;
       }
     }
 
     return schedule;
+  }
+
+  // 시간 형식 변환 (HH:MM)
+  formatTimeForSchedule(hour) {
+    const hours = Math.floor(hour);
+    const minutes = Math.round((hour - hours) * 60);
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  }
+
+  // 시간대 구분 (오전/오후/저녁)
+  getTimePeriod(hour) {
+    if (hour < 12) return "오전";
+    if (hour < 18) return "오후";
+    return "저녁";
   }
 
   // 친근한 제목 생성
@@ -377,7 +417,36 @@ class SchedulerAgent {
         <div class="schedule-timeline">
     `;
 
-    // 활동들 렌더링
+    // 시간별 스케줄 렌더링 (지정된 형식)
+    html += `
+      <div class="time-schedule-section">
+        <h4>⏰ 시간별 스케줄</h4>
+        <div class="time-schedule-list">
+    `;
+
+    schedule.timeSchedule.forEach((timeItem, index) => {
+      const isBreak = timeItem.activity.type === 'break';
+      const itemClass = isBreak ? 'time-break-item' : 'time-activity-item';
+      
+      html += `
+        <div class="${itemClass}">
+          <div class="time-format1">${timeItem.format1}</div>
+          <div class="time-format2">${timeItem.format2}</div>
+        </div>
+      `;
+    });
+
+    html += `
+        </div>
+      </div>
+    `;
+
+    // 상세 활동들 렌더링
+    html += `
+      <div class="detailed-activities">
+        <h4>📋 상세 활동</h4>
+    `;
+
     schedule.activities.forEach((activity, index) => {
       html += `
         <div class="activity-item" data-type="${activity.type}">
@@ -406,6 +475,7 @@ class SchedulerAgent {
 
     html += `
         </div>
+        </div>
         
         <div class="day-tips">
           <h4>💡 오늘의 팁</h4>
@@ -415,6 +485,29 @@ class SchedulerAgent {
     `;
 
     return html;
+  }
+
+  // 시간별 스케줄만 텍스트로 출력 (지정된 형식)
+  generateTimeScheduleText(weeklySchedule, format = 1) {
+    let text = `=== ${weeklySchedule.weekNumber}주차 시간별 스케줄 ===\n`;
+    text += `목표: ${weeklySchedule.goal}\n`;
+    text += `기간: ${weeklySchedule.duration}\n\n`;
+
+    Object.entries(weeklySchedule.dailySchedules).forEach(([day, schedule]) => {
+      text += `[${schedule.day}요일]\n`;
+      
+      schedule.timeSchedule.forEach((timeItem) => {
+        if (format === 1) {
+          text += `${timeItem.format1}\n`;
+        } else {
+          text += `${timeItem.format2}\n`;
+        }
+      });
+      
+      text += '\n';
+    });
+
+    return text;
   }
 }
 
