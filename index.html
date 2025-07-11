@@ -3,19 +3,79 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>목표 입력</title>
+  <title>Clarity Coach</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <style>
+    .nav-cards {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .nav-card {
+      flex: 1;
+      min-width: 280px;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      text-decoration: none;
+      color: white;
+      transition: transform 0.2s;
+      cursor: pointer;
+    }
+    
+    .nav-card:hover {
+      transform: translateY(-2px);
+      text-decoration: none;
+      color: white;
+    }
+    
+    .nav-card h3 {
+      margin: 0 0 8px 0;
+      font-size: 1.2rem;
+    }
+    
+    .nav-card p {
+      margin: 0;
+      opacity: 0.9;
+      font-size: 0.95rem;
+    }
+    
+    .creative-card {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 100%);
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    <h1>🎯 목표 입력</h1>
-    <textarea id="goal-input" placeholder="목표를 입력하세요." rows="2"></textarea>
-    <button id="generate-btn">전략 생성하기</button>
-    <div id="result-box" class="result-box"></div>
-    <div id="output" style="white-space: pre-line; margin-top: 20px;"></div>
+    <h1>🎯 Clarity Coach</h1>
+    <p style="color: #666; font-size: 1.1rem; margin-bottom: 30px;">
+      목표를 달성하는 가장 효과적인 방법을 찾아보세요!
+    </p>
+    
+    <div class="nav-cards">
+      <div class="nav-card" onclick="window.location.href='#standard'">
+        <h3>📚 체계적 학습 전략</h3>
+        <p>목표를 입력하면 체계적인 3가지 학습 전략을 제안해드려요</p>
+      </div>
+      
+      <a href="creative-routine.html" class="nav-card creative-card">
+        <h3>🎨 창의적 루틴 설계자</h3>
+        <p>재미있고 창의적인 방식으로 목표를 달성하는 나만의 루틴을 만들어보세요</p>
+      </a>
+    </div>
+    
+    <div id="standard-form">
+      <h2>📚 체계적 학습 전략 생성</h2>
+      <textarea id="goal-input" placeholder="목표를 입력하세요." rows="2"></textarea>
+      <button id="generate-btn">전략 생성하기</button>
+      <div id="result-box" class="result-box"></div>
+      <div id="output" style="white-space: pre-line; margin-top: 20px;"></div>
+    </div>
   </div>
   <script src="script.js"></script>
 </body>

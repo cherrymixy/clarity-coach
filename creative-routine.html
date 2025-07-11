@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎨 창의적 루틴 설계자</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .form-group {
+      margin-bottom: 24px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+      font-size: 1.1rem;
+    }
+    
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #007aff;
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+    }
+    
+    .interest-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    
+    .interest-tag {
+      padding: 6px 12px;
+      background: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+    
+    .interest-tag:hover {
+      background: #e0e0e0;
+    }
+    
+    .interest-tag.selected {
+      background: #007aff;
+      color: white;
+      border-color: #007aff;
+    }
+    
+    .routine-results {
+      margin-top: 30px;
+      display: none;
+    }
+    
+    .routine-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border-left: 4px solid #28a745;
+    }
+    
+    .routine-section h3 {
+      margin-top: 0;
+      color: #333;
+      font-size: 1.3rem;
+    }
+    
+    .week-card {
+      background: white;
+      padding: 16px;
+      margin-bottom: 16px;
+      border-radius: 8px;
+      border-left: 3px solid #007aff;
+    }
+    
+    .routine-type-card {
+      background: white;
+      padding: 16px;
+      margin-bottom: 16px;
+      border-radius: 8px;
+      border-left: 3px solid #ff6b6b;
+    }
+    
+    .challenge-card {
+      background: white;
+      padding: 16px;
+      margin-bottom: 16px;
+      border-radius: 8px;
+      border-left: 3px solid #ffd93d;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+    
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #007aff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .fun-element {
+      background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: inline-block;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav style="margin-bottom: 20px;">
+      <a href="index.html" style="color: #007aff; text-decoration: none; font-weight: 500;">
+        ← Clarity Coach 홈으로
+      </a>
+    </nav>
+    
+    <h1>🎨 창의적 루틴 설계자</h1>
+    <p style="color: #666; font-size: 1.1rem; margin-bottom: 30px;">
+      목표를 달성하는 과정이 재미있고 창의적이 될 수 있도록 나만의 루틴을 만들어 보세요!
+    </p>
+    
+    <form id="routine-form">
+      <div class="form-group">
+        <label for="goal">🎯 달성하고 싶은 목표</label>
+        <textarea id="goal" placeholder="예: 3개월 안에 기초 일본어 회화 마스터하기" rows="3"></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label>🎨 관심사나 취향 (여러 개 선택 가능)</label>
+        <div class="interest-tags">
+          <div class="interest-tag" data-interest="음악">🎵 음악</div>
+          <div class="interest-tag" data-interest="미술">🎨 미술</div>
+          <div class="interest-tag" data-interest="독서">📚 독서</div>
+          <div class="interest-tag" data-interest="운동">🏃‍♂️ 운동</div>
+          <div class="interest-tag" data-interest="요리">🍳 요리</div>
+          <div class="interest-tag" data-interest="게임">🎮 게임</div>
+          <div class="interest-tag" data-interest="영화">🎬 영화</div>
+          <div class="interest-tag" data-interest="여행">✈️ 여행</div>
+          <div class="interest-tag" data-interest="글쓰기">✍️ 글쓰기</div>
+          <div class="interest-tag" data-interest="사진">📸 사진</div>
+          <div class="interest-tag" data-interest="댄스">💃 댄스</div>
+          <div class="interest-tag" data-interest="쇼핑">🛍️ 쇼핑</div>
+        </div>
+        <input type="text" id="custom-interest" placeholder="다른 관심사가 있다면 직접 입력하세요..." style="margin-top: 12px;">
+      </div>
+      
+      <div class="form-group">
+        <label for="time-available">⏰ 하루에 실행 가능한 시간</label>
+        <select id="time-available">
+          <option value="">시간을 선택하세요</option>
+          <option value="15-30분">15-30분 (짧고 꾸준하게)</option>
+          <option value="30-60분">30-60분 (적당히 집중해서)</option>
+          <option value="1-2시간">1-2시간 (여유롭게 몰입)</option>
+          <option value="2시간 이상">2시간 이상 (주말이나 자유시간 활용)</option>
+        </select>
+      </div>
+      
+      <button type="submit" id="generate-routine-btn">🚀 나만의 창의적 루틴 만들기</button>
+    </form>
+    
+    <div id="routine-results" class="routine-results">
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        창의적인 루틴을 설계하고 있어요... 잠시만 기다려주세요! 🎨
+      </div>
+      
+      <div id="results-content" style="display: none;">
+        <div class="routine-section">
+          <h3>📅 주차별 전략 테마</h3>
+          <div id="weekly-themes"></div>
+        </div>
+        
+        <div class="routine-section">
+          <h3>🎯 루틴 유형별 예시</h3>
+          <div id="routine-types"></div>
+        </div>
+        
+        <div class="routine-section">
+          <h3>🏆 재미있는 챌린지</h3>
+          <div id="challenges"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 관심사 태그 선택 기능
+    const interestTags = document.querySelectorAll('.interest-tag');
+    const selectedInterests = new Set();
+    
+    interestTags.forEach(tag => {
+      tag.addEventListener('click', () => {
+        const interest = tag.dataset.interest;
+        
+        if (selectedInterests.has(interest)) {
+          selectedInterests.delete(interest);
+          tag.classList.remove('selected');
+        } else {
+          selectedInterests.add(interest);
+          tag.classList.add('selected');
+        }
+      });
+    });
+    
+    // 커스텀 관심사 추가
+    document.getElementById('custom-interest').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const customInterest = e.target.value.trim();
+        if (customInterest) {
+          selectedInterests.add(customInterest);
+          e.target.value = '';
+        }
+      }
+    });
+    
+    // 폼 제출 처리
+    document.getElementById('routine-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const goal = document.getElementById('goal').value.trim();
+      const timeAvailable = document.getElementById('time-available').value;
+      const customInterest = document.getElementById('custom-interest').value.trim();
+      
+      if (customInterest) {
+        selectedInterests.add(customInterest);
+      }
+      
+      if (!goal || !timeAvailable || selectedInterests.size === 0) {
+        alert('모든 필드를 입력해주세요!');
+        return;
+      }
+      
+      const interests = Array.from(selectedInterests).join(', ');
+      
+      // 결과 영역 표시
+      document.getElementById('routine-results').style.display = 'block';
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('results-content').style.display = 'none';
+      
+      // 페이지 스크롤
+      document.getElementById('routine-results').scrollIntoView({ behavior: 'smooth' });
+      
+      try {
+        const response = await fetch('/api/creative-routine', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            goal,
+            interests,
+            timeAvailable
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          displayResults(data.choices[0].message.content);
+        } else {
+          throw new Error(data.error || '루틴 생성에 실패했습니다.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('loading').innerHTML = `
+          <div style="color: #ff6b6b;">
+            ❌ 루틴 생성 중 오류가 발생했습니다.<br>
+            다시 시도해주세요.
+          </div>
+        `;
+      }
+    });
+    
+    function displayResults(content) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('results-content').style.display = 'block';
+      
+      try {
+        // JSON 추출 시도
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const routineData = JSON.parse(jsonMatch[0]);
+          
+          // 주차별 테마 표시
+          const weeklyThemesDiv = document.getElementById('weekly-themes');
+          weeklyThemesDiv.innerHTML = routineData.weeklyThemes.map(week => `
+            <div class="week-card">
+              <h4>Week ${week.week}: ${week.theme}</h4>
+              <p>${week.description}</p>
+              <div class="fun-element">${week.funElement}</div>
+            </div>
+          `).join('');
+          
+          // 루틴 유형 표시
+          const routineTypesDiv = document.getElementById('routine-types');
+          routineTypesDiv.innerHTML = routineData.routineTypes.map(type => `
+            <div class="routine-type-card">
+              <h4>${type.type}</h4>
+              <p>${type.description}</p>
+              <p><strong>일일 구조:</strong> ${type.dailyStructure}</p>
+              <ul>
+                ${type.examples.map(example => `<li>${example}</li>`).join('')}
+              </ul>
+            </div>
+          `).join('');
+          
+          // 챌린지 표시
+          const challengesDiv = document.getElementById('challenges');
+          challengesDiv.innerHTML = routineData.challenges.map(challenge => `
+            <div class="challenge-card">
+              <h4>${challenge.name}</h4>
+              <p>${challenge.description}</p>
+              <p><strong>기간:</strong> ${challenge.duration}</p>
+            </div>
+          `).join('');
+        } else {
+          throw new Error('JSON 형식이 아닙니다.');
+        }
+      } catch (error) {
+        // JSON 파싱 실패 시 원본 텍스트 표시
+        document.getElementById('results-content').innerHTML = `
+          <div style="white-space: pre-wrap; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+            ${content}
+          </div>
+        `;
+      }
+    }
+  </script>
+</body>
+</html>
