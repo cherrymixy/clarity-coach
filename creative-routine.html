@@ -142,6 +142,69 @@
       display: inline-block;
       margin-top: 8px;
     }
+    
+    .mcp-button {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      backdrop-filter: blur(10px);
+    }
+    
+    .mcp-button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+    
+    .mcp-button:active {
+      transform: translateY(0);
+    }
+    
+    .motivation-booster-card {
+      background: white;
+      padding: 16px;
+      margin-bottom: 16px;
+      border-radius: 8px;
+      border-left: 3px solid #9b59b6;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    
+    .modal-content {
+      background-color: white;
+      margin: 15% auto;
+      padding: 20px;
+      border-radius: 12px;
+      width: 80%;
+      max-width: 600px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    
+    .close:hover {
+      color: black;
+    }
   </style>
 </head>
 <body>
@@ -217,7 +280,37 @@
           <h3>🏆 재미있는 챌린지</h3>
           <div id="challenges"></div>
         </div>
+        
+        <div class="routine-section">
+          <h3>💪 동기부여 부스터</h3>
+          <div id="motivation-boosters"></div>
+        </div>
+        
+        <!-- MCP 추가 기능 -->
+        <div class="routine-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+          <h3>🚀 MCP 기반 추가 기능</h3>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;">
+            <button id="generate-extra-challenge" class="mcp-button">
+              📢 주간 챌린지 추가 생성
+            </button>
+            <button id="get-motivation-boost" class="mcp-button">
+              ⚡ 동기부여 부스터 받기
+            </button>
+            <button id="view-resources" class="mcp-button">
+              📚 MCP 리소스 보기
+            </button>
+          </div>
+        </div>
       </div>
+    </div>
+  </div>
+
+  <!-- 모달 창 -->
+  <div id="mcpModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="modal-title">MCP 기능</h2>
+      <div id="modal-body"></div>
     </div>
   </div>
 
@@ -294,8 +387,15 @@
         
         const data = await response.json();
         
-        if (response.ok) {
-          displayResults(data.choices[0].message.content);
+        if (response.ok && data.success) {
+          displayResults(data.content);
+          
+          // MCP 또는 폴백 방식 표시
+          if (data.source === 'mcp') {
+            console.log('✅ MCP를 통해 루틴이 생성되었습니다.');
+          } else {
+            console.log('⚠️ 폴백 방식으로 루틴이 생성되었습니다.');
+          }
         } else {
           throw new Error(data.error || '루틴 생성에 실패했습니다.');
         }
@@ -350,8 +450,24 @@
               <h4>${challenge.name}</h4>
               <p>${challenge.description}</p>
               <p><strong>기간:</strong> ${challenge.duration}</p>
+              ${challenge.reward ? `<p><strong>보상:</strong> ${challenge.reward}</p>` : ''}
+              ${challenge.difficulty ? `<p><strong>난이도:</strong> ${challenge.difficulty}</p>` : ''}
             </div>
           `).join('');
+          
+          // 동기부여 부스터 표시
+          const motivationBoostersDiv = document.getElementById('motivation-boosters');
+          if (routineData.motivationBoosters) {
+            motivationBoostersDiv.innerHTML = routineData.motivationBoosters.map(booster => `
+              <div class="motivation-booster-card">
+                <h4>${booster.type}</h4>
+                <p>${booster.description}</p>
+                <p><strong>언제 사용할까:</strong> ${booster.whenToUse}</p>
+              </div>
+            `).join('');
+          } else {
+            motivationBoostersDiv.innerHTML = '<p>동기부여 부스터가 포함되지 않았습니다.</p>';
+          }
         } else {
           throw new Error('JSON 형식이 아닙니다.');
         }
@@ -363,6 +479,121 @@
           </div>
         `;
       }
+    }
+    
+    // MCP 기능 버튼 이벤트 리스너
+    document.addEventListener('DOMContentLoaded', () => {
+      // 모달 창 관련
+      const modal = document.getElementById('mcpModal');
+      const span = document.getElementsByClassName('close')[0];
+      
+      span.onclick = function() {
+        modal.style.display = 'none';
+      }
+      
+      window.onclick = function(event) {
+        if (event.target == modal) {
+          modal.style.display = 'none';
+        }
+      }
+      
+      // 주간 챌린지 추가 생성 버튼
+      document.getElementById('generate-extra-challenge').addEventListener('click', async () => {
+        try {
+          const interests = Array.from(selectedInterests).join(', ');
+          if (!interests) {
+            alert('먼저 관심사를 선택해주세요!');
+            return;
+          }
+          
+          const response = await fetch('/api/weekly-challenge', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              theme: '창의적 도전',
+              interests: interests,
+              duration: '1주일'
+            })
+          });
+          
+          const data = await response.json();
+          if (data.success) {
+            showModal('📢 주간 챌린지', data.content);
+          } else {
+            alert('챌린지 생성에 실패했습니다.');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('오류가 발생했습니다.');
+        }
+      });
+      
+      // 동기부여 부스터 받기 버튼
+      document.getElementById('get-motivation-boost').addEventListener('click', async () => {
+        try {
+          const interests = Array.from(selectedInterests).join(', ');
+          if (!interests) {
+            alert('먼저 관심사를 선택해주세요!');
+            return;
+          }
+          
+          const response = await fetch('/api/motivation-booster', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              currentProgress: '열심히 하고 있어요!',
+              mood: 'motivated',
+              interests: interests
+            })
+          });
+          
+          const data = await response.json();
+          if (data.success) {
+            showModal('⚡ 동기부여 부스터', data.content);
+          } else {
+            alert('동기부여 부스터 생성에 실패했습니다.');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('오류가 발생했습니다.');
+        }
+      });
+      
+      // MCP 리소스 보기 버튼
+      document.getElementById('view-resources').addEventListener('click', async () => {
+        try {
+          const response = await fetch('/api/mcp/resources');
+          const data = await response.json();
+          
+          if (data.resources) {
+            const resourcesHtml = data.resources.map(resource => `
+              <div style="margin-bottom: 16px; padding: 12px; background: #f8f9fa; border-radius: 8px;">
+                <h4>${resource.name}</h4>
+                <p>${resource.description}</p>
+                <small>URI: ${resource.uri}</small>
+              </div>
+            `).join('');
+            
+            showModal('📚 MCP 리소스', resourcesHtml);
+          } else {
+            alert('리소스 조회에 실패했습니다.');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('오류가 발생했습니다.');
+        }
+      });
+    });
+    
+    // 모달 창 표시 함수
+    function showModal(title, content) {
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-body').innerHTML = content;
+      document.getElementById('mcpModal').style.display = 'block';
     }
   </script>
 </body>
