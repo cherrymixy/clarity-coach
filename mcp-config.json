@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "compressed-routine-strategist": {
+      "command": "node",
+      "args": ["mcp-server.js"],
+      "env": {
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}"
+      }
+    }
+  }
+}
