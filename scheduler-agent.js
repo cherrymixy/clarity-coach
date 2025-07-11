@@ -680,10 +680,13 @@ class SchedulerAgent {
 
   // MCP 하루 일정 HTML 렌더링
   renderMCPDayScheduleHTML(day, schedule) {
+    // 요일별 제목 생성
+    const dayTitle = this.generateDayTitle(schedule.day, schedule.dayNumber, schedule.goal);
+    
     let html = `
       <div class="day-schedule">
         <div class="day-header">
-          <h3>✅ ${schedule.day}요일 (${schedule.dayNumber}일차)</h3>
+          <h3>⏰ ${dayTitle}</h3>
           <p class="day-title">${schedule.title}</p>
           <p class="day-goal"><strong>목표:</strong> ${schedule.goal}</p>
           <p class="day-motivation">💪 ${schedule.motivation}</p>
@@ -692,23 +695,35 @@ class SchedulerAgent {
         <div class="schedule-timeline">
     `;
 
-    // 시간별 스케줄 렌더링 (지정된 형식)
+    // 시간별 스케줄 렌더링 (구글 캘린더 파싱용 형식만)
     html += `
       <div class="time-schedule-section">
-        <h4>⏰ 시간별 스케줄</h4>
+        <h4>📅 캘린더 등록용 스케줄</h4>
         <div class="time-schedule-list">
     `;
 
     schedule.timeSchedule.forEach((timeItem, index) => {
-      const isBreak = timeItem.activity.type === 'break';
-      const itemClass = isBreak ? 'time-break-item' : 'time-activity-item';
+      if (timeItem.activity.type === 'break') {
+        // 휴식은 제외하고 활동만 출력
+        return;
+      }
       
-      html += `
-        <div class="${itemClass}">
-          <div class="time-format1">${timeItem.format1}</div>
-          <div class="time-format2">${timeItem.format2}</div>
-        </div>
-      `;
+      // 시간과 제목 추출
+      const timeMatch = timeItem.format1.match(/\[(\d{2}:\d{2})\]/);
+      const titleMatch = timeItem.format1.match(/\]\s*(.+?)\s*\(/);
+      const durationMatch = timeItem.format1.match(/\((\d+)분\)/);
+      
+      if (timeMatch && titleMatch && durationMatch) {
+        const time = timeMatch[1];
+        const title = titleMatch[1];
+        const duration = durationMatch[1];
+        
+        html += `
+          <div class="time-activity-item">
+            <div class="calendar-format">- [${time}] [${title}] (${duration}분)</div>
+          </div>
+        `;
+      }
     });
 
     html += `
