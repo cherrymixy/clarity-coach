@@ -762,20 +762,35 @@ class SchedulerAgent {
     return html;
   }
 
-  // 시간별 스케줄만 텍스트로 출력 (지정된 형식)
+  // 시간별 스케줄만 텍스트로 출력 (구글 캘린더 파싱용 형식)
   generateTimeScheduleText(weeklySchedule, format = 1) {
     let text = `=== ${weeklySchedule.weekNumber}주차 시간별 스케줄 ===\n`;
     text += `목표: ${weeklySchedule.goal}\n`;
     text += `기간: ${weeklySchedule.duration}\n\n`;
 
     Object.entries(weeklySchedule.dailySchedules).forEach(([day, schedule]) => {
-      text += `[${schedule.day}요일]\n`;
+      // 요일별 제목 생성
+      const dayTitle = this.generateDayTitle(schedule.day, schedule.dayNumber, schedule.goal);
+      text += `⏰ ${dayTitle}\n`;
       
+      // 시간별 스케줄 출력 (구글 캘린더 파싱 형식)
       schedule.timeSchedule.forEach((timeItem) => {
-        if (format === 1) {
-          text += `${timeItem.format1}\n`;
-        } else {
-          text += `${timeItem.format2}\n`;
+        if (timeItem.activity.type === 'break') {
+          // 휴식은 제외하고 활동만 출력
+          return;
+        }
+        
+        // 시간과 제목 추출
+        const timeMatch = timeItem.format1.match(/\[(\d{2}:\d{2})\]/);
+        const titleMatch = timeItem.format1.match(/\]\s*(.+?)\s*\(/);
+        const durationMatch = timeItem.format1.match(/\((\d+)분\)/);
+        
+        if (timeMatch && titleMatch && durationMatch) {
+          const time = timeMatch[1];
+          const title = titleMatch[1];
+          const duration = durationMatch[1];
+          
+          text += `- [${time}] [${title}] (${duration}분)\n`;
         }
       });
       
@@ -783,6 +798,41 @@ class SchedulerAgent {
     });
 
     return text;
+  }
+
+  // 요일별 제목 생성
+  generateDayTitle(day, dayNumber, goal) {
+    const dayNames = {
+      '월': '월요일',
+      '화': '화요일', 
+      '수': '수요일',
+      '목': '목요일',
+      '금': '금요일',
+      '토': '토요일',
+      '일': '일요일'
+    };
+
+    const dayName = dayNames[day];
+    
+    // 요일별 특성에 맞는 제목 생성
+    switch (day) {
+      case '월':
+        return `${dayName} - 주간 시작`;
+      case '화':
+        return `${dayName} - 꾸준한 진행`;
+      case '수':
+        return `${dayName} - 중간점검`;
+      case '목':
+        return `${dayName} - 마무리 준비`;
+      case '금':
+        return `${dayName} - 주간 마무리`;
+      case '토':
+        return `${dayName} - 주말 학습`;
+      case '일':
+        return `${dayName} - 주간 마무리`;
+      default:
+        return `${dayName} - ${goal}`;
+    }
   }
 }
 
