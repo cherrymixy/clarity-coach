@@ -344,7 +344,10 @@
         const goal = localStorage.getItem('user_goal') || '';
         const selectedStrategy = localStorage.getItem('selected_strategy') || '체계적 계획형';
 
-                 // AI에게 보낼 프롬프트 구성
+                 // 시간 슬롯 템플릿 생성
+         const timeTemplate = generateTimeTemplate(availableTime, dailyHours, breakPreference);
+         
+         // AI에게 보낼 프롬프트 구성
          const prompt = `당신은 "일일 일정 코치" Scheduler Agent입니다.
 
 🎯 역할: Strategy Agent가 제공한 주간 전략을 바탕으로 실천 가능한 일일 세부 일정표를 만들어주세요.
@@ -360,107 +363,27 @@
 
 🗣 말투: 너무 빡빡하지 않게, 실천 가능하고 친절한 말투로 안내해주세요.
 
+⚠️ 중요: 아래 미리 정의된 시간 템플릿을 사용하여 각 시간대에 맞는 활동만 제안해주세요. 시간은 절대 변경하지 마세요!
+
+시간 템플릿:
+${JSON.stringify(timeTemplate, null, 2)}
+
 📤 출력 요구사항:
-1. 월~금 요일별 상세 시간표 (정확히 5일)
-2. 각 활동에 필요한 시간 예측 및 분배
-3. 비슷한 활동은 묶어서 배치하여 집중력 향상
-4. 하루 2~3개 핵심 작업 이내로 제한
-5. 쉬는 시간과 피드백 시간 포함
+1. 위 시간 템플릿의 각 슬롯에 목표에 맞는 구체적인 활동 내용 배정
+2. title: 간결하고 구체적인 활동명 (20자 이내)
+3. description: 실행 방법과 기대 효과 (50자 이내)
+4. type은 이미 설정되어 있으니 변경하지 마세요
+5. 비슷한 활동은 연속으로 배치하여 집중력 향상
 6. 실천 가능한 구체적 행동으로 제시
 
-⚠️ 중요: 반드시 아래 정확한 JSON 형식과 구조를 따라주세요. 시간 형식은 "HH:MM-HH:MM" 형태로 통일하고, 각 요일마다 동일한 구조를 유지해주세요.
-
-JSON 예시 (이 구조를 정확히 따라주세요):
+JSON 형식으로 응답해주세요:
 {
   "weekSummary": "이번 주 전체 학습 목표와 흐름을 한 문장으로 설명",
-  "dailySchedules": [
-    {
-      "day": "월요일",
-      "focus": "핵심 테마",
-      "timeSlots": [
-        {
-          "time": "09:00-10:30",
-          "title": "구체적인 활동명",
-          "description": "실행 방법과 기대 효과를 간결하게",
-          "type": "work"
-        },
-        {
-          "time": "10:30-10:45",
-          "title": "휴식",
-          "description": "가벼운 스트레칭이나 차 마시기",
-          "type": "break"
-        },
-        {
-          "time": "10:45-12:15",
-          "title": "두 번째 활동명",
-          "description": "실행 방법과 기대 효과를 간결하게",
-          "type": "work"
-        }
-      ]
-    },
-    {
-      "day": "화요일",
-      "focus": "핵심 테마",
-      "timeSlots": [
-        {
-          "time": "09:00-10:30",
-          "title": "구체적인 활동명",
-          "description": "실행 방법과 기대 효과를 간결하게",
-          "type": "work"
-        }
-      ]
-    },
-    {
-      "day": "수요일",
-      "focus": "핵심 테마",
-      "timeSlots": [
-        {
-          "time": "09:00-10:30",
-          "title": "구체적인 활동명",
-          "description": "실행 방법과 기대 효과를 간결하게",
-          "type": "work"
-        }
-      ]
-    },
-    {
-      "day": "목요일",
-      "focus": "핵심 테마",
-      "timeSlots": [
-        {
-          "time": "09:00-10:30",
-          "title": "구체적인 활동명",
-          "description": "실행 방법과 기대 효과를 간결하게",
-          "type": "work"
-        }
-      ]
-    },
-    {
-      "day": "금요일",
-      "focus": "핵심 테마",
-      "timeSlots": [
-        {
-          "time": "09:00-10:30",
-          "title": "구체적인 활동명",
-          "description": "실행 방법과 기대 효과를 간결하게",
-          "type": "work"
-        },
-        {
-          "time": "16:00-16:30",
-          "title": "주간 회고",
-          "description": "이번 주 학습 성과 정리 및 다음 주 계획",
-          "type": "feedback"
-        }
-      ]
-    }
-  ],
-  "tips": [
-    "구체적이고 실천 가능한 팁 1",
-    "구체적이고 실천 가능한 팁 2",
-    "구체적이고 실천 가능한 팁 3"
-  ]
+  "dailySchedules": [위 시간 템플릿을 그대로 사용하되 title과 description만 채워주세요],
+  "tips": ["실천을 위한 구체적인 팁 3개"]
 }
 
-위 형식을 정확히 지켜서 응답해주세요. 월요일부터 금요일까지 정확히 5일, type은 "work", "break", "feedback"만 사용, 시간은 "HH:MM-HH:MM" 형식으로 통일해주세요.`;
+시간과 type은 절대 변경하지 마시고, title과 description만 목표에 맞게 채워주세요!`;
 
         // OpenAI API 호출
         const response = await fetch('/api/gpt', {
@@ -495,16 +418,16 @@ JSON 예시 (이 구조를 정확히 따라주세요):
              content = content.slice(0, -3);
            }
            
-           try {
-             const scheduleData = JSON.parse(content);
-             
-             // 데이터 검증 및 정규화
-             const validatedData = validateAndNormalizeSchedule(scheduleData);
-             displaySchedule(validatedData);
-           } catch (parseError) {
-             console.error('JSON 파싱 오류:', parseError);
-             throw new Error('AI 응답 형식이 올바르지 않습니다. 다시 시도해주세요.');
-           }
+                        try {
+               const scheduleData = JSON.parse(content);
+               
+               // 템플릿과 AI 응답 병합
+               const finalData = mergeWithTemplate(timeTemplate, scheduleData);
+               displaySchedule(finalData);
+             } catch (parseError) {
+               console.error('JSON 파싱 오류:', parseError);
+               throw new Error('AI 응답 형식이 올바르지 않습니다. 다시 시도해주세요.');
+             }
          } else {
            throw new Error('AI 응답을 받을 수 없습니다.');
          }
@@ -522,6 +445,199 @@ JSON 예시 (이 구조를 정확히 따라주세요):
         loading.style.display = 'none';
       }
          }
+
+     // 시간 템플릿 생성 함수
+     function generateTimeTemplate(availableTime, dailyHours, breakPreference) {
+       const days = ['월요일', '화요일', '수요일', '목요일', '금요일'];
+       const dailySchedules = [];
+       
+       // 가용 시간대 파싱
+       let [startHour, endHour] = availableTime.split('-').map(h => parseInt(h));
+       if (availableTime === 'custom') {
+         startHour = 9;
+         endHour = 18;
+       }
+       
+       // 휴식 패턴 설정
+       const breakPatterns = {
+         'frequent': { workDuration: 25, breakDuration: 5 },    // 25분 작업, 5분 휴식
+         'moderate': { workDuration: 50, breakDuration: 10 },   // 50분 작업, 10분 휴식  
+         'minimal': { workDuration: 90, breakDuration: 15 }     // 90분 작업, 15분 휴식
+       };
+       
+       const pattern = breakPatterns[breakPreference] || breakPatterns['moderate'];
+       const totalHours = parseInt(dailyHours);
+       
+       days.forEach((day, dayIndex) => {
+         const timeSlots = [];
+         let currentTime = startHour * 60; // 분으로 변환
+         const endTime = Math.min(startHour * 60 + totalHours * 60, endHour * 60);
+         
+         let sessionCount = 0;
+         
+         while (currentTime < endTime) {
+           // 작업 세션 추가
+           const workEndTime = Math.min(currentTime + pattern.workDuration, endTime);
+           if (workEndTime > currentTime) {
+             const currentHour = Math.floor(currentTime / 60);
+             let defaultTitle = "";
+             let defaultDescription = "";
+             
+             // 시간대별 기본 활동 제안
+             if (currentHour < 10) {
+               defaultTitle = "이론 학습";
+               defaultDescription = "집중력이 높은 오전 시간을 활용한 개념 학습";
+             } else if (currentHour < 12) {
+               defaultTitle = "실습 활동";
+               defaultDescription = "오전에 학습한 내용을 바탕으로 한 실제 연습";
+             } else if (currentHour < 14) {
+               defaultTitle = "복습 및 정리";
+               defaultDescription = "오전 학습 내용 복습 및 노트 정리";
+             } else if (currentHour < 16) {
+               defaultTitle = "심화 학습";
+               defaultDescription = "오후 시간을 활용한 심화 내용 학습";
+             } else {
+               defaultTitle = "실전 연습";
+               defaultDescription = "하루 학습 내용을 종합한 실전 문제 해결";
+             }
+             
+             timeSlots.push({
+               time: `${formatTime(currentTime)}-${formatTime(workEndTime)}`,
+               title: defaultTitle,
+               description: defaultDescription,
+               type: "work"
+             });
+             
+             currentTime = workEndTime;
+             sessionCount++;
+           }
+           
+           // 휴식 시간 추가 (마지막이 아닌 경우에만)
+           if (currentTime < endTime && currentTime + pattern.breakDuration <= endTime) {
+             const breakEndTime = currentTime + pattern.breakDuration;
+             timeSlots.push({
+               time: `${formatTime(currentTime)}-${formatTime(breakEndTime)}`,
+               title: "휴식",
+               description: "가벼운 스트레칭이나 차 마시기",
+               type: "break"
+             });
+             
+             currentTime = breakEndTime;
+           } else {
+             break;
+           }
+         }
+         
+         // 금요일에는 주간 회고 시간 추가
+         if (dayIndex === 4 && timeSlots.length > 0) {
+           // 마지막 작업 시간을 30분 줄이고 회고 시간 추가
+           const lastWorkSlot = timeSlots.filter(slot => slot.type === 'work').pop();
+           if (lastWorkSlot) {
+             const [startTime, endTime] = lastWorkSlot.time.split('-');
+             const endMinutes = timeToMinutes(endTime);
+             const reviewStartMinutes = endMinutes - 30;
+             
+             if (reviewStartMinutes > timeToMinutes(startTime)) {
+               lastWorkSlot.time = `${startTime}-${formatTime(reviewStartMinutes)}`;
+               
+               timeSlots.push({
+                 time: `${formatTime(reviewStartMinutes)}-${formatTime(endMinutes)}`,
+                 title: "주간 회고",
+                 description: "이번 주 학습 성과 정리 및 다음 주 계획",
+                 type: "feedback"
+               });
+             }
+           }
+         }
+         
+         dailySchedules.push({
+           day: day,
+           focus: "학습 활동",
+           timeSlots: timeSlots
+         });
+       });
+       
+       return {
+         weekSummary: `${currentWeek}주차 학습 목표입니다.`,
+         dailySchedules: dailySchedules,
+         tips: []
+       };
+     }
+     
+     // 시간 형식 변환 함수들
+     function formatTime(minutes) {
+       const hours = Math.floor(minutes / 60);
+       const mins = minutes % 60;
+       return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+     }
+     
+     function timeToMinutes(timeStr) {
+       const [hours, minutes] = timeStr.split(':').map(n => parseInt(n));
+       return hours * 60 + minutes;
+     }
+     
+     // 템플릿과 AI 응답 병합 함수
+     function mergeWithTemplate(template, aiResponse) {
+       // 템플릿을 깊은 복사
+       const result = JSON.parse(JSON.stringify(template));
+       
+       // AI 응답에서 유효한 데이터 추출
+       if (aiResponse && typeof aiResponse === 'object') {
+         // weekSummary 업데이트
+         if (aiResponse.weekSummary && typeof aiResponse.weekSummary === 'string') {
+           result.weekSummary = aiResponse.weekSummary;
+         }
+         
+         // tips 업데이트
+         if (Array.isArray(aiResponse.tips) && aiResponse.tips.length > 0) {
+           result.tips = aiResponse.tips.filter(tip => typeof tip === 'string');
+         }
+         
+         // dailySchedules 업데이트 (title과 description만)
+         if (Array.isArray(aiResponse.dailySchedules)) {
+           result.dailySchedules.forEach((templateDay, dayIndex) => {
+             const aiDay = aiResponse.dailySchedules[dayIndex];
+             if (aiDay && typeof aiDay === 'object') {
+               // focus 업데이트
+               if (aiDay.focus && typeof aiDay.focus === 'string') {
+                 templateDay.focus = aiDay.focus;
+               }
+               
+               // timeSlots 업데이트 (title과 description만)
+               if (Array.isArray(aiDay.timeSlots)) {
+                 templateDay.timeSlots.forEach((templateSlot, slotIndex) => {
+                   const aiSlot = aiDay.timeSlots[slotIndex];
+                   if (aiSlot && typeof aiSlot === 'object') {
+                     // title 업데이트 (유효한 경우에만)
+                     if (aiSlot.title && typeof aiSlot.title === 'string' && aiSlot.title.trim()) {
+                       templateSlot.title = aiSlot.title.trim();
+                     }
+                     
+                     // description 업데이트 (유효한 경우에만)
+                     if (aiSlot.description && typeof aiSlot.description === 'string' && aiSlot.description.trim()) {
+                       templateSlot.description = aiSlot.description.trim();
+                     }
+                     
+                     // time과 type은 템플릿 유지 (절대 변경하지 않음)
+                   }
+                 });
+               }
+             }
+           });
+         }
+       }
+       
+       // 기본 tips 설정 (AI가 제공하지 않은 경우)
+       if (!result.tips || result.tips.length === 0) {
+         result.tips = [
+           '꾸준한 실천이 가장 중요합니다.',
+           '무리하지 마시고 천천히 진행하세요.',
+           '매일 조금씩 발전하는 모습을 확인해보세요.'
+         ];
+       }
+       
+       return result;
+     }
 
      // 데이터 검증 및 정규화 함수
      function validateAndNormalizeSchedule(data) {
