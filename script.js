@@ -1,4 +1,5 @@
 const btn = document.getElementById('generate-btn');
+const plannerBtn = document.getElementById('planner-btn');
 const input = document.getElementById('goal-input');
 const resultBox = document.getElementById('result-box');
 
@@ -12,4 +13,9 @@ btn.addEventListener('click', async () => {
   localStorage.setItem('user_goal', goal);
   // 학습 프로세스 페이지로 이동
   window.location.href = 'process.html';
+});
+
+plannerBtn.addEventListener('click', () => {
+  // 하루 계획 코치 페이지로 이동
+  window.location.href = 'planner.html';
 });
