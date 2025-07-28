@@ -3,20 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>목표 입력</title>
+  <title>Clarity Coach - 목표 달성 도우미</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="planner-style.css">
 </head>
 <body>
   <div class="container">
-    <h1>🎯 목표 입력</h1>
-    <textarea id="goal-input" placeholder="목표를 입력하세요." rows="2"></textarea>
-    <button id="generate-btn">전략 생성하기</button>
-    <div id="result-box" class="result-box"></div>
-    <div id="output" style="white-space: pre-line; margin-top: 20px;"></div>
+    <h1>🎯 Clarity Coach</h1>
+    <p class="subtitle">목표 달성을 위한 당신의 개인 코치입니다</p>
+    
+    <div class="feature-cards">
+      <div class="feature-card">
+        <div class="feature-icon">📚</div>
+        <h3>목표 기반 학습 전략</h3>
+        <p>장기적인 목표를 설정하고 체계적인 학습 계획을 세워보세요</p>
+        <button class="feature-btn" onclick="showGoalSection()">목표 입력하기</button>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">📅</div>
+        <h3>하루 계획 코치</h3>
+        <p>오늘 해야 할 일들을 효율적으로 배치한 맞춤 일정을 만들어보세요</p>
+        <button class="feature-btn" onclick="location.href='daily-planner.html'">일정 짜기</button>
+      </div>
+    </div>
+    
+    <div id="goal-section" class="goal-section hidden">
+      <h2>🎯 목표 입력</h2>
+      <textarea id="goal-input" placeholder="목표를 입력하세요." rows="2"></textarea>
+      <button id="generate-btn">전략 생성하기</button>
+      <div id="result-box" class="result-box"></div>
+      <div id="output" style="white-space: pre-line; margin-top: 20px;"></div>
+    </div>
   </div>
+  
   <script src="script.js"></script>
+  <script>
+    function showGoalSection() {
+      const goalSection = document.getElementById('goal-section');
+      const featureCards = document.querySelector('.feature-cards');
+      
+      goalSection.classList.remove('hidden');
+      featureCards.style.display = 'none';
+      
+      // 제목 변경
+      document.querySelector('h1').textContent = '🎯 목표 입력';
+      document.querySelector('.subtitle').style.display = 'none';
+    }
+  </script>
 </body>
 </html>
