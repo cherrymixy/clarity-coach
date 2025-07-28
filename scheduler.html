@@ -116,57 +116,42 @@
       font-weight: 500;
     }
     
-    .time-slot {
-      display: flex;
-      align-items: flex-start;
-      margin-bottom: 12px;
-      padding: 12px;
-      background: #fafafa;
-      border-radius: 8px;
-      border-left: 3px solid #007aff;
-    }
-    
-    .time-slot.break {
-      border-left-color: #ffc107;
-      background: #fffbf0;
-    }
-    
-    .time-slot.important {
-      border-left-color: #dc3545;
-      background: #fff5f5;
-    }
-    
-    .time-label {
-      font-weight: 600;
-      color: #007aff;
-      min-width: 100px;
-      margin-right: 16px;
-      font-size: 14px;
-    }
-    
-    .time-slot.break .time-label {
-      color: #f57c00;
-    }
-    
-    .time-slot.important .time-label {
-      color: #dc3545;
-    }
-    
-    .activity-content {
-      flex: 1;
-    }
-    
-    .activity-title {
-      font-weight: 500;
-      margin-bottom: 4px;
-      color: #333;
-    }
-    
-    .activity-description {
-      font-size: 13px;
-      color: #666;
-      line-height: 1.4;
-    }
+         .time-slot {
+       margin-bottom: 12px;
+       padding: 16px;
+       background: #fafafa;
+       border-radius: 8px;
+       border-left: 4px solid #007aff;
+     }
+     
+     .time-slot.break {
+       border-left-color: #ffc107;
+       background: #fffbf0;
+     }
+     
+     .time-slot.important {
+       border-left-color: #dc3545;
+       background: #fff5f5;
+     }
+     
+     .activity-content {
+       width: 100%;
+     }
+     
+     .activity-title {
+       font-weight: 600;
+       margin-bottom: 8px;
+       color: #333;
+       font-size: 16px;
+       font-family: 'Courier New', monospace;
+     }
+     
+     .activity-description {
+       font-size: 14px;
+       color: #666;
+       line-height: 1.4;
+       margin-left: 20px;
+     }
     
     .generate-btn {
       background: linear-gradient(135deg, #007aff, #0056b3);
@@ -391,29 +376,31 @@
 - 휴식 선호도: ${breakPreference}
 - 난이도: ${difficultyLevel}
 
-🗣 말투: 너무 빡빡하지 않게, 실천 가능하고 친절한 말투로 안내해주세요.
-
-⚠️ 중요: 아래 미리 정의된 시간 템플릿을 사용하여 각 시간대에 맞는 활동만 제안해주세요. 시간은 절대 변경하지 마세요!
+⚠️ 매우 중요: 시간과 형식을 절대 변경하지 마세요! 아래 템플릿의 title과 description만 수정하세요!
 
 시간 템플릿:
 ${JSON.stringify(timeTemplate, null, 2)}
 
 📤 출력 요구사항:
-1. 위 시간 템플릿의 각 슬롯에 목표에 맞는 구체적인 활동 내용 배정
-2. title: 간결하고 구체적인 활동명 (20자 이내)
-3. description: 실행 방법과 기대 효과 (50자 이내)
-4. type은 이미 설정되어 있으니 변경하지 마세요
-5. 비슷한 활동은 연속으로 배치하여 집중력 향상
-6. 실천 가능한 구체적 행동으로 제시
+1. 위 템플릿의 title과 description만 목표에 맞게 수정
+2. title: 간결하고 구체적인 활동명 (15자 이내, 한국어)
+3. description: 실행 방법 (30자 이내, 한국어)
+4. time, displayFormat, duration, type은 절대 건드리지 마세요!
+
+⛔ 금지사항:
+- 시간 형식 변경 금지 (예: [10:30], 오후 4시 등 사용 금지)
+- displayFormat 수정 금지
+- 새로운 시간 슬롯 추가 금지
+- type 변경 금지
 
 JSON 형식으로 응답해주세요:
 {
-  "weekSummary": "이번 주 전체 학습 목표와 흐름을 한 문장으로 설명",
-  "dailySchedules": [위 시간 템플릿을 그대로 사용하되 title과 description만 채워주세요],
+  "weekSummary": "이번 주 전체 학습 목표를 한 문장으로 설명",
+  "dailySchedules": [템플릿과 동일한 구조로, title과 description만 수정],
   "tips": ["실천을 위한 구체적인 팁 3개"]
 }
 
-시간과 type은 절대 변경하지 마시고, title과 description만 목표에 맞게 채워주세요!`;
+반드시 템플릿의 모든 필드(time, displayFormat, duration, type)를 그대로 유지하고 title과 description만 목표에 맞게 수정하세요!`;
 
         // OpenAI API 호출
         const response = await fetch('/api/gpt', {
@@ -523,17 +510,22 @@ JSON 형식으로 응답해주세요:
 - 휴식 선호도: ${breakPreference}
 - 난이도: ${difficultyLevel}
 
-⚠️ 중요: 아래 미리 정의된 시간 템플릿을 사용하여 각 시간대에 맞는 활동만 제안해주세요. 시간은 절대 변경하지 마세요!
+⚠️ 매우 중요: 시간과 형식을 절대 변경하지 마세요! 아래 템플릿의 title과 description만 수정하세요!
 
 오늘의 시간 템플릿:
 ${JSON.stringify(todayTemplate, null, 2)}
 
 📤 출력 요구사항:
-1. 위 시간 템플릿의 각 슬롯에 목표에 맞는 구체적인 활동 내용 배정
-2. title: 간결하고 구체적인 활동명 (20자 이내)
-3. description: 실행 방법과 기대 효과 (50자 이내)
-4. type은 이미 설정되어 있으니 변경하지 마세요
-5. 실천 가능한 구체적 행동으로 제시
+1. 위 템플릿의 title과 description만 목표에 맞게 수정
+2. title: 간결하고 구체적인 활동명 (15자 이내, 한국어)
+3. description: 실행 방법 (30자 이내, 한국어)
+4. time, displayFormat, duration, type은 절대 건드리지 마세요!
+
+⛔ 금지사항:
+- 시간 형식 변경 금지 (예: [10:30], 오후 4시 등 사용 금지)
+- displayFormat 수정 금지
+- 새로운 시간 슬롯 추가 금지
+- type 변경 금지
 
 JSON 형식으로 응답해주세요:
 {
@@ -541,12 +533,12 @@ JSON 형식으로 응답해주세요:
   "todaySchedule": {
     "day": "${todayName}",
     "focus": "오늘의 핵심 테마",
-    "timeSlots": [위 시간 템플릿을 그대로 사용하되 title과 description만 채워주세요]
+    "timeSlots": [템플릿과 동일한 구조로, title과 description만 수정]
   },
   "tips": ["오늘 실천을 위한 구체적인 팁 3개"]
 }
 
-시간과 type은 절대 변경하지 마시고, title과 description만 목표에 맞게 채워주세요!`;
+반드시 템플릿의 모든 필드(time, displayFormat, duration, type)를 그대로 유지하고 title과 description만 목표에 맞게 수정하세요!`;
 
          // OpenAI API 호출
          const response = await fetch('/api/gpt', {
@@ -663,10 +655,13 @@ JSON 형식으로 응답해주세요:
                defaultDescription = "하루 학습 내용을 종합한 실전 문제 해결";
              }
              
+             const duration = workEndTime - currentTime;
              timeSlots.push({
                time: `${formatTime(currentTime)}-${formatTime(workEndTime)}`,
+               displayFormat: `[${formatTime(currentTime)}] ${defaultTitle} (${duration}분)`,
                title: defaultTitle,
                description: defaultDescription,
+               duration: `${duration}분`,
                type: "work"
              });
              
@@ -679,8 +674,10 @@ JSON 형식으로 응답해주세요:
              const breakEndTime = currentTime + pattern.breakDuration;
              timeSlots.push({
                time: `${formatTime(currentTime)}-${formatTime(breakEndTime)}`,
+               displayFormat: `[${formatTime(currentTime)}] 휴식 (${pattern.breakDuration}분)`,
                title: "휴식",
                description: "가벼운 스트레칭이나 차 마시기",
+               duration: `${pattern.breakDuration}분`,
                type: "break"
              });
              
@@ -704,8 +701,10 @@ JSON 형식으로 응답해주세요:
                
                timeSlots.push({
                  time: `${formatTime(reviewStartMinutes)}-${formatTime(endMinutes)}`,
+                 displayFormat: `[${formatTime(reviewStartMinutes)}] 주간 회고 (30분)`,
                  title: "주간 회고",
                  description: "이번 주 학습 성과 정리 및 다음 주 계획",
+                 duration: "30분",
                  type: "feedback"
                });
              }
@@ -789,10 +788,13 @@ JSON 형식으로 응답해주세요:
              defaultDescription = "하루 학습 내용을 종합한 실전 문제 해결";
            }
            
+           const duration = workEndTime - currentTime;
            timeSlots.push({
              time: `${formatTime(currentTime)}-${formatTime(workEndTime)}`,
+             displayFormat: `[${formatTime(currentTime)}] ${defaultTitle} (${duration}분)`,
              title: defaultTitle,
              description: defaultDescription,
+             duration: `${duration}분`,
              type: "work"
            });
            
@@ -805,8 +807,10 @@ JSON 형식으로 응답해주세요:
            const breakEndTime = currentTime + pattern.breakDuration;
            timeSlots.push({
              time: `${formatTime(currentTime)}-${formatTime(breakEndTime)}`,
+             displayFormat: `[${formatTime(currentTime)}] 휴식 (${pattern.breakDuration}분)`,
              title: "휴식",
              description: "가벼운 스트레칭이나 차 마시기",
+             duration: `${pattern.breakDuration}분`,
              type: "break"
            });
            
@@ -846,7 +850,12 @@ JSON 형식으로 응답해주세요:
                if (aiSlot && typeof aiSlot === 'object') {
                  // title 업데이트 (유효한 경우에만)
                  if (aiSlot.title && typeof aiSlot.title === 'string' && aiSlot.title.trim()) {
-                   templateSlot.title = aiSlot.title.trim();
+                   const newTitle = aiSlot.title.trim();
+                   templateSlot.title = newTitle;
+                   
+                   // displayFormat 업데이트 (title 변경시에만)
+                   const timeStart = templateSlot.time.split('-')[0];
+                   templateSlot.displayFormat = `[${timeStart}] ${newTitle} (${templateSlot.duration})`;
                  }
                  
                  // description 업데이트 (유효한 경우에만)
@@ -854,7 +863,7 @@ JSON 형식으로 응답해주세요:
                    templateSlot.description = aiSlot.description.trim();
                  }
                  
-                 // time과 type은 템플릿 유지 (절대 변경하지 않음)
+                 // time, duration, type은 템플릿 유지 (절대 변경하지 않음)
                }
              });
            }
@@ -899,10 +908,13 @@ JSON 형식으로 응답해주세요:
          
          html += `
            <div class="time-slot ${typeClass}">
-             <div class="time-label">${slot.time}</div>
              <div class="activity-content">
-               <div class="activity-title">${slot.title}</div>
-               <div class="activity-description">${slot.description}</div>
+               <div class="activity-title" style="font-weight: 600; margin-bottom: 4px;">
+                 ${slot.displayFormat || `[${slot.time.split('-')[0]}] ${slot.title} (${slot.duration || '30분'})`}
+               </div>
+               <div class="activity-description" style="font-size: 13px; color: #666;">
+                 ${slot.description}
+               </div>
              </div>
            </div>
          `;
@@ -962,7 +974,12 @@ JSON 형식으로 응답해주세요:
                    if (aiSlot && typeof aiSlot === 'object') {
                      // title 업데이트 (유효한 경우에만)
                      if (aiSlot.title && typeof aiSlot.title === 'string' && aiSlot.title.trim()) {
-                       templateSlot.title = aiSlot.title.trim();
+                       const newTitle = aiSlot.title.trim();
+                       templateSlot.title = newTitle;
+                       
+                       // displayFormat 업데이트 (title 변경시에만)
+                       const timeStart = templateSlot.time.split('-')[0];
+                       templateSlot.displayFormat = `[${timeStart}] ${newTitle} (${templateSlot.duration})`;
                      }
                      
                      // description 업데이트 (유효한 경우에만)
@@ -970,7 +987,7 @@ JSON 형식으로 응답해주세요:
                        templateSlot.description = aiSlot.description.trim();
                      }
                      
-                     // time과 type은 템플릿 유지 (절대 변경하지 않음)
+                     // time, duration, type은 템플릿 유지 (절대 변경하지 않음)
                    }
                  });
                }
@@ -1063,8 +1080,10 @@ JSON 형식으로 응답해주세요:
          if (dayData.timeSlots.length === 0) {
            dayData.timeSlots.push({
              time: '09:00-10:30',
+             displayFormat: '[09:00] 기본 학습 활동 (90분)',
              title: '기본 학습 활동',
              description: '목표에 따른 학습 진행',
+             duration: '90분',
              type: 'work'
            });
          }
@@ -1144,10 +1163,13 @@ JSON 형식으로 응답해주세요:
           
           html += `
             <div class="time-slot ${typeClass}">
-              <div class="time-label">${slot.time}</div>
               <div class="activity-content">
-                <div class="activity-title">${slot.title}</div>
-                <div class="activity-description">${slot.description}</div>
+                <div class="activity-title" style="font-weight: 600; margin-bottom: 4px;">
+                  ${slot.displayFormat || `[${slot.time.split('-')[0]}] ${slot.title} (${slot.duration || '30분'})`}
+                </div>
+                <div class="activity-description" style="font-size: 13px; color: #666;">
+                  ${slot.description}
+                </div>
               </div>
             </div>
           `;
