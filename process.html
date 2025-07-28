@@ -100,6 +100,24 @@
     </div>
     
     <div id="strategy-result" class="result-box"></div>
+    
+    <!-- Scheduler Agent로 이동하는 버튼 -->
+    <div id="next-step-btn" style="display: none; text-align: center; margin-top: 30px;">
+      <button onclick="goToScheduler()" style="
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        border: none;
+        padding: 16px 32px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+      ">
+        📅 일일 일정표 만들러 가기 →
+      </button>
+    </div>
   </div>
   <script>
     // 목표 불러오기
@@ -234,6 +252,12 @@
         tab.classList.toggle('active', i === index);
       });
       
+      // 선택된 전략 저장
+      const selectedStrategy = strategies[index].title;
+      localStorage.setItem('selected_strategy', selectedStrategy);
+      localStorage.setItem('selected_strategy_index', index);
+      localStorage.setItem('strategic_data', JSON.stringify(strategies[index]));
+      
       // 전략 내용 표시
       const strategy = strategies[index];
       const resultBox = document.getElementById('strategy-result');
@@ -263,6 +287,22 @@
       
       html += '</div>';
       resultBox.innerHTML = html;
+      
+      // 다음 단계 버튼 표시
+      document.getElementById('next-step-btn').style.display = 'block';
+    }
+
+    // Scheduler Agent로 이동하는 함수
+    function goToScheduler() {
+      // 전략이 선택되었는지 확인
+      const selectedStrategy = localStorage.getItem('selected_strategy');
+      if (!selectedStrategy) {
+        alert('먼저 전략을 선택해주세요.');
+        return;
+      }
+      
+      // Scheduler Agent 페이지로 이동
+      window.location.href = 'scheduler.html';
     }
 
     // 페이지 로드 시 첫 번째 전략 표시
