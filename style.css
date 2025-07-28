@@ -68,3 +68,79 @@ button:hover {
   background: #0051a8;
   box-shadow: 0 4px 16px rgba(0,122,255,0.15);
 }
+
+/* 새로운 스타일 추가 */
+.subtitle {
+  text-align: center;
+  color: #666;
+  font-size: 1.1rem;
+  margin-bottom: 40px;
+  font-weight: 400;
+}
+
+.feature-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+.feature-card {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 32px 24px;
+  border-radius: 16px;
+  text-align: center;
+  border: 1px solid #e0e0e0;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+
+.feature-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.feature-card h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 12px;
+}
+
+.feature-card p {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.feature-btn {
+  width: 100%;
+  padding: 12px 0;
+  background: #007aff;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.feature-btn:hover {
+  background: #0051a8;
+}
+
+.goal-section {
+  width: 100%;
+  margin-top: 32px;
+}
+
+.goal-section.hidden {
+  display: none;
+}
