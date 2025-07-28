@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>하루 계획 코치</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .input-section {
+      width: 100%;
+      margin-bottom: 24px;
+    }
+    
+    .input-group {
+      margin-bottom: 16px;
+    }
+    
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+      font-size: 1rem;
+    }
+    
+    .input-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .time-input {
+      width: 140px;
+      padding: 12px 16px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      background: #fafbfc;
+      box-sizing: border-box;
+    }
+    
+    .time-input:focus {
+      border: 1.5px solid #007aff;
+      background: #fff;
+      outline: none;
+    }
+    
+    .quick-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    
+    .quick-btn {
+      padding: 6px 12px;
+      background: #f0f0f0;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .quick-btn:hover {
+      background: #e0e0e0;
+    }
+    
+    .schedule-result {
+      background: #f8f9fa;
+      border-radius: 16px;
+      padding: 24px;
+      margin-top: 20px;
+      display: none;
+      border-left: 4px solid #007aff;
+    }
+    
+    .schedule-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      background: white;
+      border-radius: 10px;
+      border-left: 4px solid #28a745;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .schedule-time {
+      font-weight: 700;
+      color: #007aff;
+      min-width: 100px;
+      font-size: 1rem;
+    }
+    
+    .schedule-activity {
+      flex: 1;
+      color: #333;
+      font-size: 1rem;
+    }
+    
+    .schedule-emoji {
+      font-size: 1.2rem;
+      margin-right: 8px;
+    }
+    
+    .loading {
+      text-align: center;
+      color: #666;
+      font-style: italic;
+      margin: 20px 0;
+    }
+    
+    .coach-message {
+      background: #e3f2fd;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      border-left: 4px solid #2196f3;
+    }
+    
+    .coach-message p {
+      margin: 0;
+      color: #1565c0;
+      font-weight: 500;
+    }
+    
+    .back-button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      background: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .back-button:hover {
+      background: #5a6268;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 하루 계획 코치</h1>
+    
+    <div class="input-section">
+      <div class="input-group">
+        <label for="todos">오늘 해야 할 일들</label>
+        <textarea id="todos" placeholder="예: 프레젠테이션 준비, 운동하기, 친구 만나기... (각각 새 줄에 작성)" rows="4"></textarea>
+        <div class="quick-buttons">
+          <button class="quick-btn" onclick="addQuickTodo('업무 회의')">업무 회의</button>
+          <button class="quick-btn" onclick="addQuickTodo('운동하기')">운동하기</button>
+          <button class="quick-btn" onclick="addQuickTodo('공부하기')">공부하기</button>
+          <button class="quick-btn" onclick="addQuickTodo('식사 준비')">식사 준비</button>
+        </div>
+      </div>
+      
+      <div class="input-group">
+        <label>이용 가능한 시간</label>
+        <div class="input-row">
+          <input type="time" id="start-time" class="time-input" value="09:00">
+          <span style="display: flex; align-items: center; color: #666;">부터</span>
+          <input type="time" id="end-time" class="time-input" value="18:00">
+          <span style="display: flex; align-items: center; color: #666;">까지</span>
+        </div>
+      </div>
+      
+      <div class="input-group">
+        <label for="context">추가 상황 (선택)</label>
+        <textarea id="context" placeholder="예: 오늘 컨디션이 좋지 않아요, 중요한 발표가 있어요, 집중이 잘 안 돼요..." rows="2"></textarea>
+      </div>
+      
+      <button id="generate-schedule-btn">📋 하루 일정 만들어 줘!</button>
+    </div>
+    
+    <div id="schedule-result" class="schedule-result">
+      <div id="loading" class="loading" style="display: none;">
+        🤔 너의 하루를 최적화하고 있어... 잠깐만!
+      </div>
+      <div id="schedule-content"></div>
+    </div>
+    
+    <button class="back-button" onclick="window.location.href='index.html'">← 목표 입력으로 돌아가기</button>
+  </div>
+
+  <script>
+    const generateBtn = document.getElementById('generate-schedule-btn');
+    const scheduleResult = document.getElementById('schedule-result');
+    const loading = document.getElementById('loading');
+    const scheduleContent = document.getElementById('schedule-content');
+    
+    function addQuickTodo(todo) {
+      const todosTextarea = document.getElementById('todos');
+      const currentValue = todosTextarea.value.trim();
+      todosTextarea.value = currentValue ? currentValue + '\n' + todo : todo;
+    }
+    
+    generateBtn.addEventListener('click', async () => {
+      const todos = document.getElementById('todos').value.trim();
+      const startTime = document.getElementById('start-time').value;
+      const endTime = document.getElementById('end-time').value;
+      const context = document.getElementById('context').value.trim();
+      
+      if (!todos) {
+        alert('해야 할 일을 먼저 입력해 주세요!');
+        return;
+      }
+      
+      if (!startTime || !endTime) {
+        alert('시작 시간과 종료 시간을 설정해 주세요!');
+        return;
+      }
+      
+      // UI 상태 변경
+      scheduleResult.style.display = 'block';
+      loading.style.display = 'block';
+      scheduleContent.innerHTML = '';
+      generateBtn.disabled = true;
+      generateBtn.textContent = '일정 생성 중...';
+      
+      try {
+        const prompt = `
+너는 "하루 계획 코치"야. 친근하지만 간결하게 조언해 줘.
+
+사용자 정보:
+- 해야 할 일: ${todos}
+- 이용 가능한 시간: ${startTime} ~ ${endTime}
+- 추가 상황: ${context || '없음'}
+
+응답 형식:
+1. 먼저 간단한 코멘트 (한 줄, 친근하게)
+2. 그 다음 시간표를 다음 형식으로:
+
+[시간] [이모지] [활동명]
+예: 09:00-10:00 📚 프레젠테이션 자료 준비
+
+규칙:
+- 집중 시간은 최대 90분 단위로 나누기
+- 휴식 시간 15-30분씩 포함
+- 식사 시간 고려
+- 우선순위 높은 일부터 배치
+- 실현 가능한 일정으로 구성
+- 각 활동마다 적절한 이모지 추가
+`;
+
+        const response = await fetch('/api/gpt', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messages: [
+              {
+                role: 'system',
+                content: '당신은 현실적이고 친근한 하루 계획 코치입니다. 사용자의 상황을 고려해서 실현 가능한 일정을 제안해 주세요.'
+              },
+              {
+                role: 'user',
+                content: prompt
+              }
+            ]
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.choices && data.choices[0]) {
+          const aiResponse = data.choices[0].message.content;
+          displaySchedule(aiResponse);
+        } else {
+          throw new Error('AI 응답을 받을 수 없습니다.');
+        }
+        
+      } catch (error) {
+        console.error('Error:', error);
+        scheduleContent.innerHTML = `
+          <div style="color: #d32f2f; text-align: center; padding: 20px;">
+            😅 앗, 일정을 만드는 중에 문제가 생겼어요!<br>
+            잠시 후 다시 시도해 주세요.
+          </div>
+        `;
+      } finally {
+        loading.style.display = 'none';
+        generateBtn.disabled = false;
+        generateBtn.textContent = '📋 하루 일정 만들어 줘!';
+      }
+    });
+    
+    function displaySchedule(aiResponse) {
+      const lines = aiResponse.split('\n').filter(line => line.trim());
+      let html = '';
+      let isScheduleSection = false;
+      
+      // 첫 번째 줄은 코치 메시지로 처리
+      if (lines.length > 0) {
+        const firstLine = lines[0].trim();
+        if (!firstLine.match(/^\d{1,2}:\d{2}/) && !firstLine.includes('[시간]')) {
+          html += `<div class="coach-message"><p>${firstLine}</p></div>`;
+          lines.shift();
+        }
+      }
+      
+      // 나머지 줄들을 일정으로 처리
+      for (const line of lines) {
+        const trimmedLine = line.trim();
+        if (!trimmedLine || trimmedLine.includes('[시간]')) continue;
+        
+        // 시간 패턴 매칭: HH:MM-HH:MM 또는 HH:MM~HH:MM
+        const timeMatch = trimmedLine.match(/^(\d{1,2}:\d{2})[-~](\d{1,2}:\d{2})\s*(.+)$/);
+        
+        if (timeMatch) {
+          const [, startTime, endTime, activity] = timeMatch;
+          const cleanActivity = activity.replace(/^\s*[^\w\s]*\s*/, ''); // 이모지 제거
+          const emoji = activity.match(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u)?.[0] || '📋';
+          
+          html += `
+            <div class="schedule-item">
+              <div class="schedule-time">${startTime}-${endTime}</div>
+              <div class="schedule-emoji">${emoji}</div>
+              <div class="schedule-activity">${cleanActivity}</div>
+            </div>
+          `;
+        } else if (trimmedLine.length > 0) {
+          // 시간 형식이 아닌 줄은 추가 메시지로 처리
+          html += `<div style="margin: 12px 0; color: #666; font-style: italic;">${trimmedLine}</div>`;
+        }
+      }
+      
+      scheduleContent.innerHTML = html;
+    }
+  </script>
+</body>
+</html>
