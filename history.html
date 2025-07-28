@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📚 내 루틴 히스토리 - Clarity Coach</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    .history-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      position: relative;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    
+    .header h1 {
+      margin: 0 0 10px 0;
+      font-size: 2.2rem;
+      font-weight: 700;
+    }
+    
+    .content {
+      padding: 40px;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 100px 40px;
+      color: #666;
+    }
+    
+    .empty-state h3 {
+      margin-bottom: 15px;
+      color: #333;
+    }
+    
+    .routine-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+    
+    .routine-card {
+      background: #f8f9fa;
+      border-radius: 16px;
+      padding: 25px;
+      border-left: 4px solid #ff6b9d;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    
+    .routine-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      border-left-color: #28a745;
+    }
+    
+    .routine-card.creative {
+      border-left-color: #ff6b9d;
+    }
+    
+    .routine-card.basic {
+      border-left-color: #007aff;
+    }
+    
+    .routine-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 15px;
+    }
+    
+    .routine-type {
+      background: #ff6b9d;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .routine-type.basic {
+      background: #007aff;
+    }
+    
+    .routine-date {
+      color: #666;
+      font-size: 0.9rem;
+    }
+    
+    .routine-goal {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+    
+    .routine-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+    
+    .meta-tag {
+      background: #e9ecef;
+      color: #495057;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+    }
+    
+    .routine-preview {
+      color: #666;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+    }
+    
+    .routine-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .action-btn-small {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-view {
+      background: #28a745;
+      color: white;
+      flex: 1;
+    }
+    
+    .btn-view:hover {
+      background: #218838;
+    }
+    
+    .btn-delete {
+      background: #dc3545;
+      color: white;
+      padding: 8px 12px;
+    }
+    
+    .btn-delete:hover {
+      background: #c82333;
+    }
+    
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      padding: 12px 20px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.2s;
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+    
+    .back-btn:hover {
+      background: white;
+      color: #28a745;
+      border-color: #28a745;
+    }
+    
+    .clear-all-btn {
+      background: #dc3545;
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 20px;
+    }
+    
+    .clear-all-btn:hover {
+      background: #c82333;
+    }
+    
+    /* 모달 스타일 */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      backdrop-filter: blur(5px);
+    }
+    
+    .modal-content {
+      background: white;
+      margin: 5% auto;
+      padding: 0;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 80vh;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+    
+    .modal-header {
+      background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+      color: white;
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .modal-body {
+      padding: 30px;
+      overflow-y: auto;
+      max-height: 60vh;
+    }
+    
+    .close-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    
+    .close-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    @media (max-width: 768px) {
+      .routine-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .modal-content {
+        width: 95%;
+        margin: 10% auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back-btn">← 홈으로</a>
+  
+  <div class="history-container">
+    <div class="header">
+      <h1>📚 내 루틴 히스토리</h1>
+      <p>지금까지 생성한 모든 루틴을 확인하고 관리하세요</p>
+    </div>
+    
+    <div class="content">
+      <div id="empty-state" class="empty-state" style="display: none;">
+        <h3>🤔 아직 생성된 루틴이 없어요</h3>
+        <p>창의적 루틴 설계자를 통해 첫 번째 루틴을 만들어보세요!</p>
+        <a href="creative-routine.html" style="display: inline-block; margin-top: 20px; padding: 15px 30px; background: #ff6b9d; color: white; text-decoration: none; border-radius: 12px; font-weight: 600;">
+          🚀 루틴 만들러 가기
+        </a>
+      </div>
+      
+      <div id="history-content">
+        <button class="clear-all-btn" onclick="clearAllHistory()" id="clear-btn" style="display: none;">
+          🗑️ 모든 히스토리 삭제
+        </button>
+        <div class="routine-grid" id="routine-grid"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 루틴 상세보기 모달 -->
+  <div id="routine-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title">루틴 상세보기</h2>
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+  
+  <script>
+    // 페이지 로드 시 히스토리 표시
+    displayHistory();
+    
+    function displayHistory() {
+      const history = JSON.parse(localStorage.getItem('routine_history') || '[]');
+      const emptyState = document.getElementById('empty-state');
+      const historyContent = document.getElementById('history-content');
+      const routineGrid = document.getElementById('routine-grid');
+      const clearBtn = document.getElementById('clear-btn');
+      
+      if (history.length === 0) {
+        emptyState.style.display = 'block';
+        historyContent.style.display = 'none';
+        return;
+      }
+      
+      emptyState.style.display = 'none';
+      historyContent.style.display = 'block';
+      clearBtn.style.display = 'block';
+      
+      routineGrid.innerHTML = '';
+      
+      history.forEach((routine, index) => {
+        const card = createRoutineCard(routine, index);
+        routineGrid.appendChild(card);
+      });
+    }
+    
+    function createRoutineCard(routine, index) {
+      const card = document.createElement('div');
+      card.className = `routine-card ${routine.type}`;
+      
+      const typeText = routine.type === 'creative' ? '🎨 창의적 루틴' : '📚 기본 학습';
+      const preview = routine.content.substring(0, 150) + '...';
+      
+      card.innerHTML = `
+        <div class="routine-header">
+          <span class="routine-type ${routine.type}">${typeText}</span>
+          <span class="routine-date">${routine.date}</span>
+        </div>
+        <div class="routine-goal">${routine.goal}</div>
+        <div class="routine-meta">
+          ${routine.interests ? routine.interests.map(interest => `<span class="meta-tag">🎨 ${interest}</span>`).join('') : ''}
+          ${routine.timeAvailable ? `<span class="meta-tag">⏰ ${routine.timeAvailable}</span>` : ''}
+        </div>
+        <div class="routine-preview">${preview}</div>
+        <div class="routine-actions">
+          <button class="action-btn-small btn-view" onclick="viewRoutine(${index})">
+            👀 자세히 보기
+          </button>
+          <button class="action-btn-small btn-delete" onclick="deleteRoutine(${index})" title="삭제">
+            🗑️
+          </button>
+        </div>
+      `;
+      
+      return card;
+    }
+    
+    function viewRoutine(index) {
+      const history = JSON.parse(localStorage.getItem('routine_history') || '[]');
+      const routine = history[index];
+      
+      if (!routine) return;
+      
+      const modal = document.getElementById('routine-modal');
+      const modalTitle = document.getElementById('modal-title');
+      const modalBody = document.getElementById('modal-body');
+      
+      modalTitle.textContent = routine.goal;
+      
+      // 루틴 내용을 HTML로 포맷팅
+      const formattedContent = formatRoutineContent(routine.content);
+      
+      modalBody.innerHTML = `
+        <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+          <div><strong>📅 생성일:</strong> ${routine.date}</div>
+          <div><strong>🎨 관심사:</strong> ${routine.interests ? routine.interests.join(', ') : '없음'}</div>
+          <div><strong>⏰ 실행 시간:</strong> ${routine.timeAvailable || '없음'}</div>
+          ${routine.personality ? `<div><strong>🌟 성격/스타일:</strong> ${routine.personality}</div>` : ''}
+        </div>
+        <div class="routine-content">${formattedContent}</div>
+      `;
+      
+      modal.style.display = 'block';
+    }
+    
+    function closeModal() {
+      document.getElementById('routine-modal').style.display = 'none';
+    }
+    
+    function deleteRoutine(index) {
+      if (confirm('정말로 이 루틴을 삭제하시겠습니까?')) {
+        const history = JSON.parse(localStorage.getItem('routine_history') || '[]');
+        history.splice(index, 1);
+        localStorage.setItem('routine_history', JSON.stringify(history));
+        displayHistory();
+      }
+    }
+    
+    function clearAllHistory() {
+      if (confirm('모든 루틴 히스토리를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+        localStorage.removeItem('routine_history');
+        displayHistory();
+      }
+    }
+    
+    // 텍스트를 HTML로 포맷팅하는 함수 (creative-result.html과 동일)
+    function formatRoutineContent(text) {
+      let html = text;
+      
+      // 제목들을 HTML로 변환
+      html = html.replace(/^## (.*)/gm, '<h2>$1</h2>');
+      html = html.replace(/^### (.*)/gm, '<h3>$1</h3>');
+      html = html.replace(/^\*\*(.*주차.*)\*\*/gm, '<h4 class="week-title">$1</h4>');
+      
+      // 목록을 HTML로 변환
+      html = html.replace(/^- (.*)/gm, '<li>$1</li>');
+      html = html.replace(/^• (.*)/gm, '<li>$1</li>');
+      
+      // 볼드 텍스트 변환
+      html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      
+      // 줄바꿈 처리
+      html = html.replace(/\n\n/g, '</p><p>');
+      html = '<p>' + html + '</p>';
+      
+      return html;
+    }
+    
+    // 모달 외부 클릭 시 닫기
+    window.onclick = function(event) {
+      const modal = document.getElementById('routine-modal');
+      if (event.target === modal) {
+        closeModal();
+      }
+    }
+  </script>
+</body>
+</html>

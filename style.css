@@ -81,6 +81,21 @@ h1 {
   gap: 15px;
 }
 
+.history-section {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 2px solid #e0e0e0;
+}
+
+.history-count {
+  margin: 10px 0 0 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
 textarea {
   width: 100%;
   padding: 15px;
@@ -98,7 +113,7 @@ textarea:focus {
   border-color: #007aff;
 }
 
-.btn-primary, .btn-creative {
+.btn-primary, .btn-creative, .btn-history {
   padding: 15px 30px;
   border: none;
   border-radius: 12px;
@@ -130,6 +145,19 @@ textarea:focus {
   background: linear-gradient(135deg, #c44569 0%, #ff6b9d 100%);
   transform: translateY(-3px);
   box-shadow: 0 10px 30px rgba(196, 69, 105, 0.3);
+}
+
+.btn-history {
+  background: #28a745;
+  color: white;
+  font-size: 1.1rem;
+  padding: 15px 30px;
+}
+
+.btn-history:hover {
+  background: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
 }
 
 .result-box {

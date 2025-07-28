@@ -289,10 +289,13 @@
         document.getElementById('content').style.display = 'block';
         document.getElementById('routine-result').innerHTML = htmlContent;
         
-        // 루틴 내용 저장
-        localStorage.setItem('generated_routine', routineText);
-        
-      } catch (error) {
+                 // 루틴 내용 저장
+         localStorage.setItem('generated_routine', routineText);
+         
+         // 히스토리에 저장
+         saveToHistory(routineText);
+         
+       } catch (error) {
         console.error('오류:', error);
         document.getElementById('loading').innerHTML = `
           <div style="color: #d00; text-align: center;">
@@ -373,8 +376,34 @@
       }
     }
     
-    // 페이지 로드 시 루틴 생성 시작
-    generateCreativeRoutine();
-  </script>
-</body>
-</html>
+         // 히스토리에 저장하는 함수
+     function saveToHistory(routineText) {
+       const history = JSON.parse(localStorage.getItem('routine_history') || '[]');
+       
+       const routineEntry = {
+         id: Date.now(),
+         date: new Date().toLocaleString('ko-KR'),
+         goal: creativeData.goal,
+         interests: creativeData.interests,
+         timeAvailable: creativeData.timeAvailable,
+         personality: creativeData.personality,
+         content: routineText,
+         type: 'creative'
+       };
+       
+       // 새 루틴을 맨 앞에 추가
+       history.unshift(routineEntry);
+       
+       // 최대 50개까지만 저장
+       if (history.length > 50) {
+         history.splice(50);
+       }
+       
+       localStorage.setItem('routine_history', JSON.stringify(history));
+     }
+     
+     // 페이지 로드 시 루틴 생성 시작
+     generateCreativeRoutine();
+   </script>
+ </body>
+ </html>

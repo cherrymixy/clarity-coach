@@ -2,6 +2,19 @@ const btn = document.getElementById('generate-btn');
 const input = document.getElementById('goal-input');
 const resultBox = document.getElementById('result-box');
 const creativeBtn = document.getElementById('creative-btn');
+const historyBtn = document.getElementById('history-btn');
+const historyCount = document.getElementById('history-count');
+
+// 페이지 로드 시 히스토리 개수 업데이트
+updateHistoryCount();
+
+// 페이지가 다시 포커스될 때마다 히스토리 개수 업데이트
+window.addEventListener('focus', updateHistoryCount);
+window.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    updateHistoryCount();
+  }
+});
 
 // 기존 전략 생성 기능
 btn.addEventListener('click', async () => {
@@ -20,3 +33,14 @@ btn.addEventListener('click', async () => {
 creativeBtn.addEventListener('click', () => {
   window.location.href = 'creative-routine.html';
 });
+
+// 히스토리 페이지로 이동
+historyBtn.addEventListener('click', () => {
+  window.location.href = 'history.html';
+});
+
+// 히스토리 개수 업데이트 함수
+function updateHistoryCount() {
+  const history = JSON.parse(localStorage.getItem('routine_history') || '[]');
+  historyCount.textContent = `저장된 루틴: ${history.length}개`;
+}
