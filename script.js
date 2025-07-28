@@ -10,6 +10,6 @@ btn.addEventListener('click', async () => {
   }
   // 목표를 localStorage에 저장
   localStorage.setItem('user_goal', goal);
-  // 학습 프로세스 페이지로 이동
-  window.location.href = 'process.html';
+  // 목표 분석가 페이지로 이동
+  window.location.href = 'planner-agent.html';
 });
