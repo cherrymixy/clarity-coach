@@ -285,7 +285,14 @@
     </div>
 
     <!-- 일정 생성 버튼 -->
-    <button class="generate-btn" onclick="generateSchedule()">📋 이번 주 일정표 생성하기</button>
+    <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+      <button class="generate-btn" onclick="generateTodaySchedule()" style="flex: 1; background: linear-gradient(135deg, #28a745, #20c997);">
+        📅 오늘만 생성하기 (<span id="today-label">오늘</span>)
+      </button>
+      <button class="generate-btn" onclick="generateSchedule()" style="flex: 1;">
+        📋 이번 주 전체 생성하기
+      </button>
+    </div>
 
     <!-- 로딩 표시 -->
     <div id="loading" class="loading" style="display: none;">
@@ -314,7 +321,30 @@
 
       // Strategy Agent에서 전달된 데이터 불러오기
       strategicData = JSON.parse(localStorage.getItem('strategic_data') || 'null');
+      
+      // 오늘 요일 표시
+      updateTodayLabel();
     });
+    
+    // 오늘 요일 업데이트
+    function updateTodayLabel() {
+      const today = new Date();
+      const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+      const koreanDayNames = ['월요일', '화요일', '수요일', '목요일', '금요일'];
+      const todayName = dayNames[today.getDay()];
+      
+      const todayLabel = document.getElementById('today-label');
+      if (koreanDayNames.includes(todayName)) {
+        todayLabel.textContent = todayName;
+        todayLabel.parentElement.style.display = 'block';
+      } else {
+        // 주말인 경우 다음 월요일로 설정
+        const nextMonday = new Date(today);
+        nextMonday.setDate(today.getDate() + (8 - today.getDay()) % 7);
+        todayLabel.textContent = '다음 월요일';
+        todayLabel.parentElement.style.display = 'block';
+      }
+    }
 
     // 주차 선택
     function selectWeek(week) {
@@ -446,6 +476,138 @@ JSON 형식으로 응답해주세요:
       }
          }
 
+     // 오늘만 일정 생성
+     async function generateTodaySchedule() {
+       const generateBtn = document.querySelector('.generate-btn');
+       const loading = document.getElementById('loading');
+       const resultDiv = document.getElementById('schedule-result');
+
+       // 오늘 요일 확인
+       const today = new Date();
+       const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+       const koreanDayNames = ['월요일', '화요일', '수요일', '목요일', '금요일'];
+       const todayName = dayNames[today.getDay()];
+       
+       if (!koreanDayNames.includes(todayName)) {
+         alert('평일(월~금)에만 일정을 생성할 수 있습니다.');
+         return;
+       }
+
+       // 설정 값 가져오기
+       const availableTime = document.getElementById('available-time').value;
+       const dailyHours = document.getElementById('daily-hours').value;
+       const breakPreference = document.getElementById('break-preference').value;
+       const difficultyLevel = document.getElementById('difficulty-level').value;
+
+       loading.style.display = 'block';
+       resultDiv.innerHTML = '';
+
+       try {
+         const goal = localStorage.getItem('user_goal') || '';
+         const selectedStrategy = localStorage.getItem('selected_strategy') || '체계적 계획형';
+
+         // 오늘만의 시간 템플릿 생성
+         const todayTemplate = generateSingleDayTemplate(todayName, availableTime, dailyHours, breakPreference);
+         
+         // AI에게 보낼 프롬프트 구성
+         const prompt = `당신은 "일일 일정 코치" Scheduler Agent입니다.
+
+🎯 역할: 오늘(${todayName}) 하루 일정을 구체적으로 만들어주세요.
+
+📥 입력 정보:
+- 목표: ${goal}
+- 선택된 전략: ${selectedStrategy}
+- 오늘: ${todayName}
+- 가용 시간대: ${availableTime}
+- 하루 학습 시간: ${dailyHours}시간
+- 휴식 선호도: ${breakPreference}
+- 난이도: ${difficultyLevel}
+
+⚠️ 중요: 아래 미리 정의된 시간 템플릿을 사용하여 각 시간대에 맞는 활동만 제안해주세요. 시간은 절대 변경하지 마세요!
+
+오늘의 시간 템플릿:
+${JSON.stringify(todayTemplate, null, 2)}
+
+📤 출력 요구사항:
+1. 위 시간 템플릿의 각 슬롯에 목표에 맞는 구체적인 활동 내용 배정
+2. title: 간결하고 구체적인 활동명 (20자 이내)
+3. description: 실행 방법과 기대 효과 (50자 이내)
+4. type은 이미 설정되어 있으니 변경하지 마세요
+5. 실천 가능한 구체적 행동으로 제시
+
+JSON 형식으로 응답해주세요:
+{
+  "todaySummary": "오늘의 학습 목표를 한 문장으로 설명",
+  "todaySchedule": {
+    "day": "${todayName}",
+    "focus": "오늘의 핵심 테마",
+    "timeSlots": [위 시간 템플릿을 그대로 사용하되 title과 description만 채워주세요]
+  },
+  "tips": ["오늘 실천을 위한 구체적인 팁 3개"]
+}
+
+시간과 type은 절대 변경하지 마시고, title과 description만 목표에 맞게 채워주세요!`;
+
+         // OpenAI API 호출
+         const response = await fetch('/api/gpt', {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json',
+           },
+           body: JSON.stringify({
+             messages: [
+               {
+                 role: 'system',
+                 content: 'You are a helpful daily schedule coach. Respond only with valid JSON format.'
+               },
+               {
+                 role: 'user',
+                 content: prompt
+               }
+             ]
+           })
+         });
+
+         const data = await response.json();
+         
+         if (data.choices && data.choices[0]) {
+           let content = data.choices[0].message.content.trim();
+           
+           // JSON 파싱을 위해 코드 블록 제거
+           if (content.startsWith('```json')) {
+             content = content.slice(7);
+           }
+           if (content.endsWith('```')) {
+             content = content.slice(0, -3);
+           }
+           
+           try {
+             const scheduleData = JSON.parse(content);
+             
+             // 템플릿과 AI 응답 병합 (오늘만)
+             const finalData = mergeWithTodayTemplate(todayTemplate, scheduleData);
+             displayTodaySchedule(finalData, todayName);
+           } catch (parseError) {
+             console.error('JSON 파싱 오류:', parseError);
+             throw new Error('AI 응답 형식이 올바르지 않습니다. 다시 시도해주세요.');
+           }
+         } else {
+           throw new Error('AI 응답을 받을 수 없습니다.');
+         }
+
+       } catch (error) {
+         console.error('일정 생성 오류:', error);
+         resultDiv.innerHTML = `
+           <div class="daily-schedule" style="text-align: center; color: #d00;">
+             <h3>⚠️ 일정 생성 중 오류가 발생했습니다</h3>
+             <p>잠시 후 다시 시도해주세요.</p>
+           </div>
+         `;
+       } finally {
+         loading.style.display = 'none';
+       }
+     }
+
      // 시간 템플릿 생성 함수
      function generateTimeTemplate(availableTime, dailyHours, breakPreference) {
        const days = ['월요일', '화요일', '수요일', '목요일', '금요일'];
@@ -574,6 +736,196 @@ JSON 형식으로 응답해주세요:
      function timeToMinutes(timeStr) {
        const [hours, minutes] = timeStr.split(':').map(n => parseInt(n));
        return hours * 60 + minutes;
+     }
+     
+     // 단일 요일 템플릿 생성 함수
+     function generateSingleDayTemplate(dayName, availableTime, dailyHours, breakPreference) {
+       // 가용 시간대 파싱
+       let [startHour, endHour] = availableTime.split('-').map(h => parseInt(h));
+       if (availableTime === 'custom') {
+         startHour = 9;
+         endHour = 18;
+       }
+       
+       // 휴식 패턴 설정
+       const breakPatterns = {
+         'frequent': { workDuration: 25, breakDuration: 5 },
+         'moderate': { workDuration: 50, breakDuration: 10 },
+         'minimal': { workDuration: 90, breakDuration: 15 }
+       };
+       
+       const pattern = breakPatterns[breakPreference] || breakPatterns['moderate'];
+       const totalHours = parseInt(dailyHours);
+       
+       const timeSlots = [];
+       let currentTime = startHour * 60; // 분으로 변환
+       const endTime = Math.min(startHour * 60 + totalHours * 60, endHour * 60);
+       
+       let sessionCount = 0;
+       
+       while (currentTime < endTime) {
+         // 작업 세션 추가
+         const workEndTime = Math.min(currentTime + pattern.workDuration, endTime);
+         if (workEndTime > currentTime) {
+           const currentHour = Math.floor(currentTime / 60);
+           let defaultTitle = "";
+           let defaultDescription = "";
+           
+           // 시간대별 기본 활동 제안
+           if (currentHour < 10) {
+             defaultTitle = "이론 학습";
+             defaultDescription = "집중력이 높은 오전 시간을 활용한 개념 학습";
+           } else if (currentHour < 12) {
+             defaultTitle = "실습 활동";
+             defaultDescription = "오전에 학습한 내용을 바탕으로 한 실제 연습";
+           } else if (currentHour < 14) {
+             defaultTitle = "복습 및 정리";
+             defaultDescription = "오전 학습 내용 복습 및 노트 정리";
+           } else if (currentHour < 16) {
+             defaultTitle = "심화 학습";
+             defaultDescription = "오후 시간을 활용한 심화 내용 학습";
+           } else {
+             defaultTitle = "실전 연습";
+             defaultDescription = "하루 학습 내용을 종합한 실전 문제 해결";
+           }
+           
+           timeSlots.push({
+             time: `${formatTime(currentTime)}-${formatTime(workEndTime)}`,
+             title: defaultTitle,
+             description: defaultDescription,
+             type: "work"
+           });
+           
+           currentTime = workEndTime;
+           sessionCount++;
+         }
+         
+         // 휴식 시간 추가 (마지막이 아닌 경우에만)
+         if (currentTime < endTime && currentTime + pattern.breakDuration <= endTime) {
+           const breakEndTime = currentTime + pattern.breakDuration;
+           timeSlots.push({
+             time: `${formatTime(currentTime)}-${formatTime(breakEndTime)}`,
+             title: "휴식",
+             description: "가벼운 스트레칭이나 차 마시기",
+             type: "break"
+           });
+           
+           currentTime = breakEndTime;
+         } else {
+           break;
+         }
+       }
+       
+       return {
+         day: dayName,
+         focus: "학습 활동",
+         timeSlots: timeSlots
+       };
+     }
+     
+     // 오늘 템플릿과 AI 응답 병합 함수
+     function mergeWithTodayTemplate(template, aiResponse) {
+       // 템플릿을 깊은 복사
+       const result = JSON.parse(JSON.stringify(template));
+       
+       // AI 응답에서 유효한 데이터 추출
+       if (aiResponse && typeof aiResponse === 'object') {
+         // todaySchedule 업데이트
+         if (aiResponse.todaySchedule && typeof aiResponse.todaySchedule === 'object') {
+           const aiSchedule = aiResponse.todaySchedule;
+           
+           // focus 업데이트
+           if (aiSchedule.focus && typeof aiSchedule.focus === 'string') {
+             result.focus = aiSchedule.focus;
+           }
+           
+           // timeSlots 업데이트 (title과 description만)
+           if (Array.isArray(aiSchedule.timeSlots)) {
+             result.timeSlots.forEach((templateSlot, slotIndex) => {
+               const aiSlot = aiSchedule.timeSlots[slotIndex];
+               if (aiSlot && typeof aiSlot === 'object') {
+                 // title 업데이트 (유효한 경우에만)
+                 if (aiSlot.title && typeof aiSlot.title === 'string' && aiSlot.title.trim()) {
+                   templateSlot.title = aiSlot.title.trim();
+                 }
+                 
+                 // description 업데이트 (유효한 경우에만)
+                 if (aiSlot.description && typeof aiSlot.description === 'string' && aiSlot.description.trim()) {
+                   templateSlot.description = aiSlot.description.trim();
+                 }
+                 
+                 // time과 type은 템플릿 유지 (절대 변경하지 않음)
+               }
+             });
+           }
+         }
+       }
+       
+       return {
+         todaySummary: (aiResponse && aiResponse.todaySummary && typeof aiResponse.todaySummary === 'string') 
+           ? aiResponse.todaySummary 
+           : `오늘(${result.day})의 학습 목표입니다.`,
+         todaySchedule: result,
+         tips: (aiResponse && Array.isArray(aiResponse.tips) && aiResponse.tips.length > 0) 
+           ? aiResponse.tips.filter(tip => typeof tip === 'string')
+           : ['꾸준한 실천이 가장 중요합니다.', '무리하지 마시고 천천히 진행하세요.', '매일 조금씩 발전하는 모습을 확인해보세요.']
+       };
+     }
+     
+     // 오늘 일정 표시 함수
+     function displayTodaySchedule(scheduleData, todayName) {
+       const resultDiv = document.getElementById('schedule-result');
+       
+       let html = `
+         <div class="summary-box">
+           <h4>📅 ${todayName} 학습 목표</h4>
+           <p>${scheduleData.todaySummary}</p>
+         </div>
+       `;
+
+       const schedule = scheduleData.todaySchedule;
+       
+       html += `
+         <div class="daily-schedule today">
+           <div class="day-header">
+             <div class="day-title">${schedule.day} (오늘)</div>
+             <div class="day-focus">${schedule.focus}</div>
+           </div>
+       `;
+
+       schedule.timeSlots.forEach(slot => {
+         const typeClass = slot.type === 'break' ? 'break' : 
+                         slot.type === 'feedback' ? 'important' : '';
+         
+         html += `
+           <div class="time-slot ${typeClass}">
+             <div class="time-label">${slot.time}</div>
+             <div class="activity-content">
+               <div class="activity-title">${slot.title}</div>
+               <div class="activity-description">${slot.description}</div>
+             </div>
+           </div>
+         `;
+       });
+
+       html += '</div>';
+
+       if (scheduleData.tips && scheduleData.tips.length > 0) {
+         html += `
+           <div class="tips-box">
+             <h4>💡 오늘의 실천 팁</h4>
+             <ul>
+         `;
+         scheduleData.tips.forEach(tip => {
+           html += `<li>${tip}</li>`;
+         });
+         html += `
+             </ul>
+           </div>
+         `;
+       }
+
+       resultDiv.innerHTML = html;
      }
      
      // 템플릿과 AI 응답 병합 함수
