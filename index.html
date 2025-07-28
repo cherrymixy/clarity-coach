@@ -11,9 +11,24 @@
 </head>
 <body>
   <div class="container">
-    <h1>🎯 목표 입력</h1>
-    <textarea id="goal-input" placeholder="목표를 입력하세요." rows="2"></textarea>
-    <button id="generate-btn">전략 생성하기</button>
+    <h1>🎯 목표 기반 학습 코치</h1>
+    <p style="color: #666; margin-bottom: 24px;">
+      목표를 입력하시면 AI가 분석하여 주차별 맞춤형 학습 전략을 제공합니다.
+    </p>
+    
+    <textarea id="goal-input" placeholder="예: 미술사에 대해 영어로 말할 수 있게 되기" rows="3"></textarea>
+    
+    <div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap;">
+      <button id="generate-btn" style="flex: 1; min-width: 200px;">📊 목표 분석 시작</button>
+      <button id="direct-strategy-btn" style="flex: 1; min-width: 200px; background: #6c757d;" onclick="window.location.href='strategy-agent.html'">🧠 전략 설계 바로가기</button>
+    </div>
+    
+    <div style="margin-top: 20px; padding: 16px; background: #f8f9fa; border-radius: 8px; font-size: 0.9rem; color: #666;">
+      <strong>💡 사용 방법:</strong><br>
+      • <strong>목표 분석 시작:</strong> 목표를 체계적으로 분석한 후 맞춤형 전략 제공<br>
+      • <strong>전략 설계 바로가기:</strong> 이미 목표가 명확하다면 바로 전략 설계로 이동
+    </div>
+    
     <div id="result-box" class="result-box"></div>
     <div id="output" style="white-space: pre-line; margin-top: 20px;"></div>
   </div>
