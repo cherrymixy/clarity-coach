@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎨 나만의 창의적 루틴 - Clarity Coach</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    .result-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      position: relative;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    
+    .header h1 {
+      margin: 0 0 10px 0;
+      font-size: 2.2rem;
+      font-weight: 700;
+    }
+    
+    .user-info {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 20px;
+      backdrop-filter: blur(10px);
+    }
+    
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 100px 40px;
+      text-align: center;
+    }
+    
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #f0f0f0;
+      border-top: 4px solid #ff6b9d;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 30px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .loading-text {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 15px;
+    }
+    
+    .loading-subtitle {
+      color: #666;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+    
+    .content {
+      padding: 40px;
+      display: none;
+    }
+    
+    .routine-content {
+      line-height: 1.8;
+      font-size: 1.05rem;
+    }
+    
+    .routine-content h2 {
+      color: #333;
+      border-bottom: 3px solid #ff6b9d;
+      padding-bottom: 10px;
+      margin: 30px 0 20px 0;
+    }
+    
+    .routine-content h3 {
+      color: #667eea;
+      margin: 25px 0 15px 0;
+      font-size: 1.3rem;
+    }
+    
+    .routine-content h4 {
+      color: #c44569;
+      margin: 20px 0 10px 0;
+      font-weight: 600;
+    }
+    
+    .routine-content ul {
+      padding-left: 25px;
+    }
+    
+    .routine-content li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    
+    .routine-content strong {
+      color: #333;
+      font-weight: 600;
+    }
+    
+    .week-section {
+      background: #f8f9fa;
+      border-left: 4px solid #ff6b9d;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 0 12px 12px 0;
+    }
+    
+    .bonus-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 25px;
+      border-radius: 16px;
+      margin: 30px 0;
+    }
+    
+    .tips-section {
+      background: #e8f5e8;
+      border-left: 4px solid #28a745;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 0 12px 12px 0;
+    }
+    
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      padding: 12px 20px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.2s;
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+    
+    .back-btn:hover {
+      background: white;
+      color: #667eea;
+      border-color: #667eea;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 40px;
+      flex-wrap: wrap;
+    }
+    
+    .action-btn {
+      flex: 1;
+      min-width: 200px;
+      padding: 15px 25px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      text-align: center;
+      display: inline-block;
+    }
+    
+    .btn-regenerate {
+      background: #667eea;
+      color: white;
+    }
+    
+    .btn-regenerate:hover {
+      background: #5a67d8;
+      transform: translateY(-2px);
+    }
+    
+    .btn-save {
+      background: #28a745;
+      color: white;
+    }
+    
+    .btn-save:hover {
+      background: #218838;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <a href="creative-routine.html" class="back-btn">← 돌아가기</a>
+  
+  <div class="result-container">
+    <div class="header">
+      <h1>🎨 나만의 창의적 루틴이 완성되었어요!</h1>
+      <div class="user-info" id="user-info"></div>
+    </div>
+    
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <div class="loading-text">창의적인 아이디어들을 모으고 있어요...</div>
+      <div class="loading-subtitle">
+        당신의 관심사와 목표를 바탕으로<br>
+        특별하고 재미있는 루틴을 설계하고 있습니다! ✨
+      </div>
+    </div>
+    
+    <div class="content" id="content">
+      <div class="routine-content" id="routine-result"></div>
+      
+      <div class="action-buttons">
+        <button class="action-btn btn-regenerate" onclick="regenerateRoutine()">
+          🔄 다른 루틴 생성하기
+        </button>
+        <button class="action-btn btn-save" onclick="saveRoutine()">
+          💾 루틴 저장하기
+        </button>
+        <a href="index.html" class="action-btn" style="background: #6c757d; color: white;">
+          🏠 홈으로 돌아가기
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // 사용자 정보 표시
+    const creativeData = JSON.parse(localStorage.getItem('creative_routine_data') || '{}');
+    
+    document.getElementById('user-info').innerHTML = `
+      <div><strong>🎯 목표:</strong> ${creativeData.goal || '없음'}</div>
+      <div><strong>🎨 관심사:</strong> ${(creativeData.interests || []).join(', ')}</div>
+      <div><strong>⏰ 실행 시간:</strong> ${creativeData.timeAvailable || '없음'}</div>
+      ${creativeData.personality ? `<div><strong>🌟 성격/스타일:</strong> ${creativeData.personality}</div>` : ''}
+    `;
+    
+    // 창의적 루틴 생성 함수
+    async function generateCreativeRoutine() {
+      try {
+        const response = await fetch('/api/creative-routine', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(creativeData)
+        });
+        
+        if (!response.ok) {
+          throw new Error('네트워크 오류가 발생했습니다.');
+        }
+        
+        const data = await response.json();
+        const routineText = data.choices[0].message.content;
+        
+        // 마크다운 스타일 텍스트를 HTML로 변환
+        const htmlContent = formatRoutineContent(routineText);
+        
+        // 로딩 화면 숨기고 결과 표시
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+        document.getElementById('routine-result').innerHTML = htmlContent;
+        
+        // 루틴 내용 저장
+        localStorage.setItem('generated_routine', routineText);
+        
+      } catch (error) {
+        console.error('오류:', error);
+        document.getElementById('loading').innerHTML = `
+          <div style="color: #d00; text-align: center;">
+            <h3>😅 앗, 문제가 발생했어요!</h3>
+            <p>잠시 후 다시 시도해 주세요.</p>
+            <button onclick="generateCreativeRoutine()" style="padding: 10px 20px; background: #007aff; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 15px;">
+              🔄 다시 시도하기
+            </button>
+          </div>
+        `;
+      }
+    }
+    
+    // 텍스트를 HTML로 포맷팅하는 함수
+    function formatRoutineContent(text) {
+      let html = text;
+      
+      // 제목들을 HTML로 변환
+      html = html.replace(/^## (.*)/gm, '<h2>$1</h2>');
+      html = html.replace(/^### (.*)/gm, '<h3>$1</h3>');
+      html = html.replace(/^\*\*(.*주차.*)\*\*/gm, '<h4 class="week-title">$1</h4>');
+      
+      // 목록을 HTML로 변환
+      html = html.replace(/^- (.*)/gm, '<li>$1</li>');
+      html = html.replace(/^• (.*)/gm, '<li>$1</li>');
+      
+      // 볼드 텍스트 변환
+      html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      
+      // 줄바꿈 처리
+      html = html.replace(/\n\n/g, '</p><p>');
+      html = '<p>' + html + '</p>';
+      
+      // 주차별 섹션을 스타일링
+      html = html.replace(/<h4 class="week-title">(.*?)<\/h4>(.*?)(?=<h4 class="week-title">|<h3>|$)/gs, 
+        '<div class="week-section"><h4>$1</h4>$2</div>');
+      
+      // 보너스 섹션 스타일링
+      html = html.replace(/<h3>🎊 보너스 재미 요소<\/h3>(.*?)(?=<h3>|$)/s, 
+        '<div class="bonus-section"><h3>🎊 보너스 재미 요소</h3>$1</div>');
+      
+      // 성공 팁 섹션 스타일링
+      html = html.replace(/<h3>💡 성공 팁<\/h3>(.*?)(?=<h3>|$)/s, 
+        '<div class="tips-section"><h3>💡 성공 팁</h3>$1</div>');
+      
+      return html;
+    }
+    
+    // 루틴 재생성
+    function regenerateRoutine() {
+      document.getElementById('content').style.display = 'none';
+      document.getElementById('loading').style.display = 'flex';
+      document.getElementById('loading').innerHTML = `
+        <div class="spinner"></div>
+        <div class="loading-text">새로운 아이디어로 다시 만들고 있어요...</div>
+        <div class="loading-subtitle">
+          더 창의적이고 재미있는 루틴으로 업그레이드! 🚀
+        </div>
+      `;
+      generateCreativeRoutine();
+    }
+    
+    // 루틴 저장
+    function saveRoutine() {
+      const routineText = localStorage.getItem('generated_routine');
+      if (routineText) {
+        const blob = new Blob([routineText], { type: 'text/plain;charset=utf-8' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `창의적_루틴_${new Date().toISOString().split('T')[0]}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        alert('루틴이 텍스트 파일로 저장되었어요! 📝');
+      }
+    }
+    
+    // 페이지 로드 시 루틴 생성 시작
+    generateCreativeRoutine();
+  </script>
+</body>
+</html>

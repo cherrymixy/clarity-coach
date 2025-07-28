@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎨 창의적 루틴 설계자 - Clarity Coach</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .creative-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 40px;
+      border-radius: 20px;
+      color: white;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    
+    .form-section {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+      color: #333;
+      backdrop-filter: blur(10px);
+    }
+    
+    .input-group {
+      margin-bottom: 25px;
+    }
+    
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+      font-size: 1.1rem;
+    }
+    
+    .input-group input, .input-group textarea, .input-group select {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: inherit;
+      box-sizing: border-box;
+      transition: all 0.2s;
+    }
+    
+    .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
+      outline: none;
+      border-color: #ff6b9d;
+      box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+    }
+    
+    .interests-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .interest-tag {
+      padding: 10px 15px;
+      background: #f0f0f0;
+      border: 2px solid #e0e0e0;
+      border-radius: 25px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+    
+    .interest-tag:hover {
+      background: #ff6b9d;
+      color: white;
+      border-color: #ff6b9d;
+    }
+    
+    .interest-tag.selected {
+      background: #ff6b9d;
+      color: white;
+      border-color: #ff6b9d;
+    }
+    
+    .time-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 15px;
+      margin-top: 10px;
+    }
+    
+    .time-option {
+      padding: 15px;
+      background: #f8f9fa;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .time-option:hover {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+    
+    .time-option.selected {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+    
+    .generate-creative-btn {
+      width: 100%;
+      padding: 20px;
+      background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 30px;
+      box-shadow: 0 10px 30px rgba(255, 107, 157, 0.3);
+    }
+    
+    .generate-creative-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(255, 107, 157, 0.4);
+    }
+    
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+  </style>
+</head>
+<body style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px;">
+  <a href="index.html" class="back-btn">← 홈으로</a>
+  
+  <div class="creative-container">
+    <h1 style="text-align: center; margin-bottom: 15px; font-size: 2.5rem;">🎨 창의적 루틴 설계자</h1>
+    <p style="text-align: center; margin-bottom: 40px; font-size: 1.2rem; opacity: 0.9;">
+      재미와 창의성이 가득한 나만의 특별한 루틴을 만들어보세요!
+    </p>
+    
+    <div class="form-section">
+      <div class="input-group">
+        <label for="goal">🎯 달성하고 싶은 목표</label>
+        <textarea id="goal" placeholder="예: 스페인어 회화 실력 늘리기, 마케팅 전문가 되기, 요리 스킬 업그레이드 등" rows="3"></textarea>
+      </div>
+      
+      <div class="input-group">
+        <label>🎨 관심사 & 취향 (여러 개 선택 가능)</label>
+        <div class="interests-grid">
+          <div class="interest-tag" data-interest="음악">🎵 음악</div>
+          <div class="interest-tag" data-interest="미술">🎨 미술</div>
+          <div class="interest-tag" data-interest="글쓰기">✍️ 글쓰기</div>
+          <div class="interest-tag" data-interest="게임">🎮 게임</div>
+          <div class="interest-tag" data-interest="요리">🍳 요리</div>
+          <div class="interest-tag" data-interest="운동">💪 운동</div>
+          <div class="interest-tag" data-interest="독서">📚 독서</div>
+          <div class="interest-tag" data-interest="영화">🎬 영화</div>
+          <div class="interest-tag" data-interest="여행">✈️ 여행</div>
+          <div class="interest-tag" data-interest="사진">📸 사진</div>
+          <div class="interest-tag" data-interest="테크">💻 테크</div>
+          <div class="interest-tag" data-interest="자연">🌱 자연</div>
+        </div>
+      </div>
+      
+      <div class="input-group">
+        <label>⏰ 하루 실행 가능 시간</label>
+        <div class="time-options">
+          <div class="time-option" data-time="15분">⚡ 15분<br><small>짧고 굵게</small></div>
+          <div class="time-option" data-time="30분">🚀 30분<br><small>적당한 속도</small></div>
+          <div class="time-option" data-time="1시간">⭐ 1시간<br><small>집중 타임</small></div>
+          <div class="time-option" data-time="2시간 이상">🔥 2시간 이상<br><small>몰입 모드</small></div>
+        </div>
+      </div>
+      
+      <div class="input-group">
+        <label for="personality">🌟 성격이나 학습 스타일 (선택사항)</label>
+        <textarea id="personality" placeholder="예: 완벽주의 성향, 즉흥적, 체계적, 시각적 학습자, 경쟁 좋아함, 혼자 집중 vs 같이 하기 좋아함 등" rows="2"></textarea>
+      </div>
+      
+      <button class="generate-creative-btn" id="generate-creative">
+        🚀 나만의 창의적 루틴 생성하기!
+      </button>
+    </div>
+  </div>
+  
+  <script>
+    // 관심사 선택 기능
+    document.querySelectorAll('.interest-tag').forEach(tag => {
+      tag.addEventListener('click', () => {
+        tag.classList.toggle('selected');
+      });
+    });
+    
+    // 시간 선택 기능 (단일 선택)
+    document.querySelectorAll('.time-option').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('.time-option').forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+      });
+    });
+    
+    // 창의적 루틴 생성 버튼
+    document.getElementById('generate-creative').addEventListener('click', async () => {
+      const goal = document.getElementById('goal').value.trim();
+      const personality = document.getElementById('personality').value.trim();
+      
+      const selectedInterests = Array.from(document.querySelectorAll('.interest-tag.selected'))
+        .map(tag => tag.dataset.interest);
+      
+      const selectedTime = document.querySelector('.time-option.selected')?.dataset.time;
+      
+      if (!goal) {
+        alert('목표를 입력해 주세요! 🎯');
+        return;
+      }
+      
+      if (selectedInterests.length === 0) {
+        alert('관심사를 하나 이상 선택해 주세요! 🎨');
+        return;
+      }
+      
+      if (!selectedTime) {
+        alert('실행 가능 시간을 선택해 주세요! ⏰');
+        return;
+      }
+      
+      // 데이터 저장
+      const creativeData = {
+        goal,
+        interests: selectedInterests,
+        timeAvailable: selectedTime,
+        personality
+      };
+      
+      localStorage.setItem('creative_routine_data', JSON.stringify(creativeData));
+      
+      // 창의적 루틴 결과 페이지로 이동
+      window.location.href = 'creative-result.html';
+    });
+  </script>
+</body>
+</html>

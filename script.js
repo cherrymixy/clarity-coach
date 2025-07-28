@@ -1,7 +1,9 @@
 const btn = document.getElementById('generate-btn');
 const input = document.getElementById('goal-input');
 const resultBox = document.getElementById('result-box');
+const creativeBtn = document.getElementById('creative-btn');
 
+// 기존 전략 생성 기능
 btn.addEventListener('click', async () => {
   const goal = input.value.trim();
   if (!goal) {
@@ -12,4 +14,9 @@ btn.addEventListener('click', async () => {
   localStorage.setItem('user_goal', goal);
   // 학습 프로세스 페이지로 이동
   window.location.href = 'process.html';
+});
+
+// 창의적 루틴 설계자 페이지로 이동
+creativeBtn.addEventListener('click', () => {
+  window.location.href = 'creative-routine.html';
 });

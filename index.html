@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>목표 입력</title>
+  <title>Clarity Coach - 목표 달성 도우미</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
@@ -11,9 +11,26 @@
 </head>
 <body>
   <div class="container">
-    <h1>🎯 목표 입력</h1>
-    <textarea id="goal-input" placeholder="목표를 입력하세요." rows="2"></textarea>
-    <button id="generate-btn">전략 생성하기</button>
+    <h1>🎯 Clarity Coach</h1>
+    <p class="subtitle">목표를 달성하는 가장 재미있는 방법을 찾아보세요!</p>
+    
+    <div class="mode-selection">
+      <div class="mode-card">
+        <h3>📚 기본 학습 전략</h3>
+        <p>체계적이고 안정적인 3가지 학습 방법</p>
+        <div class="mode-input-group">
+          <textarea id="goal-input" placeholder="목표를 입력하세요." rows="2"></textarea>
+          <button id="generate-btn" class="btn-primary">전략 생성하기</button>
+        </div>
+      </div>
+      
+      <div class="mode-card highlight">
+        <h3>🎨 창의적 루틴 설계자</h3>
+        <p>재미있고 개성 넘치는 나만의 루틴 만들기</p>
+        <button id="creative-btn" class="btn-creative">🚀 창의적 루틴 시작하기</button>
+      </div>
+    </div>
+    
     <div id="result-box" class="result-box"></div>
     <div id="output" style="white-space: pre-line; margin-top: 20px;"></div>
   </div>
