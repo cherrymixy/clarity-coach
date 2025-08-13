@@ -265,8 +265,99 @@
       resultBox.innerHTML = html;
     }
 
-    // 페이지 로드 시 첫 번째 전략 표시
+    // 기본 학습 전략을 히스토리에 저장
+    function saveBasicStrategyToHistory() {
+      const goal = localStorage.getItem('user_goal') || '';
+      if (!goal) return;
+      
+      const history = JSON.parse(localStorage.getItem('routine_history') || '[]');
+      
+      // 기본 전략 내용 생성
+      const basicStrategyContent = generateBasicStrategyContent();
+      
+      const routineEntry = {
+        id: Date.now(),
+        date: new Date().toLocaleString('ko-KR'),
+        goal: goal,
+        interests: [],
+        timeAvailable: '1-3시간',
+        personality: '',
+        content: basicStrategyContent,
+        type: 'basic'
+      };
+      
+      // 같은 목표의 기본 전략이 이미 있는지 확인
+      const existingIndex = history.findIndex(item => 
+        item.goal === goal && item.type === 'basic'
+      );
+      
+      if (existingIndex === -1) {
+        // 새 루틴을 맨 앞에 추가
+        history.unshift(routineEntry);
+        
+        // 최대 50개까지만 저장
+        if (history.length > 50) {
+          history.splice(50);
+        }
+        
+        localStorage.setItem('routine_history', JSON.stringify(history));
+      }
+    }
+    
+    // 기본 전략 내용 생성 함수
+    function generateBasicStrategyContent() {
+      const goal = localStorage.getItem('user_goal') || '';
+      
+      return `## 📚 기본 학습 전략: "${goal}"
+
+### 🎯 체계적 계획형 접근법
+체계적이고 계획을 세우는 것을 좋아하는 사람에게 적합
+
+**1일차: 목표 분석 및 세부 계획 수립**
+- 목표: ${goal}에 대한 구체적인 세부 목표 설정
+- 방법: 마인드맵 작성, 일정표 제작
+- 예상 시간: 2시간
+- 주의할 점: 너무 완벽주의적이 되지 않기
+- 피드백: 하루 마무리 시 계획의 실현 가능성 점검
+
+**2일차: 학습 환경 구축**
+- 목표: 효율적인 학습 공간과 도구 준비
+- 방법: 학습 공간 정리, 필요한 자료 수집
+- 예상 시간: 1.5시간
+- 주의할 점: 과도한 준비에 시간 낭비하지 않기
+- 피드백: 준비된 환경이 실제 학습에 도움이 되는지 확인
+
+**3일차: 첫 번째 실습 시작**
+- 목표: 계획에 따른 첫 번째 학습 세션 진행
+- 방법: 설정한 시간에 맞춰 학습 시작
+- 예상 시간: 계획에 따라 1-3시간
+- 주의할 점: 완벽하지 않아도 괜찮다는 마음가짐
+- 피드백: 학습 후 느낀 점과 개선점 기록
+
+### 🔥 실습 중심 몰입형 접근법
+즉시 실습하고 경험을 통해 배우는 것을 선호하는 사람에게 적합
+
+**1일차: 즉시 실습 시작**
+- 목표: ${goal}과 관련된 실제 상황에서 바로 시작
+- 방법: 작은 규모로 실습해보기
+- 예상 시간: 1시간
+- 주의할 점: 처음부터 완벽하려 하지 않기
+- 피드백: 실습 후 느낀 점과 어려웠던 부분 기록
+
+### 💡 감각적 체험형 접근법
+감각적 경험과 직관을 중요시하는 사람에게 적합
+
+**1일차: 감각적 연결과 동기 부여**
+- 목표: ${goal}에 대한 감정적 연결과 동기 찾기
+- 방법: 관련 영상, 음악, 이미지 등 감각적 자료 활용
+- 예상 시간: 1시간
+- 주의할 점: 감정에만 의존하지 않기
+- 피드백: 어떤 감각적 요소가 가장 동기부여가 되는지 파악`;
+    }
+
+    // 페이지 로드 시 첫 번째 전략 표시 및 히스토리 저장
     showStrategy(0);
+    saveBasicStrategyToHistory();
   </script>
 </body>
 </html> 
