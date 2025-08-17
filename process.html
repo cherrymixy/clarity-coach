@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     .strategy-tabs {
       display: flex;
@@ -86,6 +87,118 @@
     .day-section li {
       margin-bottom: 4px;
     }
+
+    /* 주간 진행률 차트 스타일 */
+    .progress-section {
+      margin-top: 30px;
+      padding: 24px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .progress-header h3 {
+      margin: 0;
+      color: #333;
+      font-size: 1.3rem;
+    }
+
+    .add-progress-btn {
+      padding: 8px 16px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+
+    .add-progress-btn:hover {
+      background: #218838;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+      margin-bottom: 20px;
+    }
+
+    .progress-input {
+      display: none;
+      margin-top: 15px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+    }
+
+    .progress-input.show {
+      display: block;
+    }
+
+    .input-group {
+      margin-bottom: 12px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .input-group input, .input-group textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    .input-group textarea {
+      height: 60px;
+      resize: vertical;
+    }
+
+    .input-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .input-buttons button {
+      flex: 1;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .save-btn {
+      background: #007aff;
+      color: white;
+    }
+
+    .cancel-btn {
+      background: #6c757d;
+      color: white;
+    }
+
+    .save-btn:hover {
+      background: #0051a8;
+    }
+
+    .cancel-btn:hover {
+      background: #545b62;
+    }
   </style>
 </head>
 <body>
@@ -100,6 +213,38 @@
     </div>
     
     <div id="strategy-result" class="result-box"></div>
+
+    <!-- 주간 진행률 차트 섹션 -->
+    <div class="progress-section">
+      <div class="progress-header">
+        <h3>📊 주간 진행률 추적</h3>
+        <button class="add-progress-btn" onclick="toggleProgressInput()">진행률 추가</button>
+      </div>
+      
+      <div class="chart-container">
+        <canvas id="progressChart"></canvas>
+      </div>
+
+      <!-- 진행률 입력 폼 -->
+      <div id="progressInput" class="progress-input">
+        <div class="input-group">
+          <label for="weekInput">주차</label>
+          <input type="number" id="weekInput" min="1" placeholder="몇 주차인가요? (예: 1)" />
+        </div>
+        <div class="input-group">
+          <label for="progressPercent">진행률 (%)</label>
+          <input type="number" id="progressPercent" min="0" max="100" placeholder="0-100 사이의 숫자" />
+        </div>
+        <div class="input-group">
+          <label for="progressNote">메모 (선택사항)</label>
+          <textarea id="progressNote" placeholder="이번 주에 학습한 내용이나 느낀 점을 적어보세요."></textarea>
+        </div>
+        <div class="input-buttons">
+          <button class="save-btn" onclick="saveProgress()">저장</button>
+          <button class="cancel-btn" onclick="toggleProgressInput()">취소</button>
+        </div>
+      </div>
+    </div>
   </div>
   <script>
     // 목표 불러오기
@@ -267,6 +412,172 @@
 
     // 페이지 로드 시 첫 번째 전략 표시
     showStrategy(0);
+
+    // 주간 진행률 차트 관련 기능
+    let progressChart = null;
+    let progressData = [];
+
+    // localStorage에서 진행률 데이터 불러오기
+    function loadProgressData() {
+      const saved = localStorage.getItem('progress_data');
+      return saved ? JSON.parse(saved) : [];
+    }
+
+    // localStorage에 진행률 데이터 저장하기
+    function saveProgressData(data) {
+      localStorage.setItem('progress_data', JSON.stringify(data));
+    }
+
+    // 차트 초기화
+    function initChart() {
+      progressData = loadProgressData();
+      
+      const ctx = document.getElementById('progressChart').getContext('2d');
+      
+      // 기존 차트가 있으면 파괴
+      if (progressChart) {
+        progressChart.destroy();
+      }
+
+      // 주차별 데이터 준비 (최대 12주까지 표시)
+      const weeks = [];
+      const percentages = [];
+      const maxWeek = Math.max(12, Math.max(...progressData.map(d => d.week), 0));
+      
+      for (let i = 1; i <= maxWeek; i++) {
+        weeks.push(`${i}주차`);
+        const weekData = progressData.find(d => d.week === i);
+        percentages.push(weekData ? weekData.percentage : 0);
+      }
+
+      progressChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: weeks,
+          datasets: [{
+            label: '학습 진행률 (%)',
+            data: percentages,
+            borderColor: '#007aff',
+            backgroundColor: 'rgba(0, 122, 255, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#007aff',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top'
+            },
+            tooltip: {
+              callbacks: {
+                afterLabel: function(context) {
+                  const weekData = progressData.find(d => d.week === context.dataIndex + 1);
+                  return weekData && weekData.note ? `메모: ${weekData.note}` : '';
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              ticks: {
+                callback: function(value) {
+                  return value + '%';
+                }
+              },
+              title: {
+                display: true,
+                text: '진행률 (%)'
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: '주차'
+              }
+            }
+          },
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          }
+        }
+      });
+    }
+
+    // 진행률 입력 폼 토글
+    function toggleProgressInput() {
+      const inputDiv = document.getElementById('progressInput');
+      const isVisible = inputDiv.classList.contains('show');
+      
+      if (isVisible) {
+        inputDiv.classList.remove('show');
+        // 폼 초기화
+        document.getElementById('weekInput').value = '';
+        document.getElementById('progressPercent').value = '';
+        document.getElementById('progressNote').value = '';
+      } else {
+        inputDiv.classList.add('show');
+        // 다음 주차 자동 설정
+        const nextWeek = progressData.length > 0 ? Math.max(...progressData.map(d => d.week)) + 1 : 1;
+        document.getElementById('weekInput').value = nextWeek;
+      }
+    }
+
+    // 진행률 저장
+    function saveProgress() {
+      const week = parseInt(document.getElementById('weekInput').value);
+      const percentage = parseInt(document.getElementById('progressPercent').value);
+      const note = document.getElementById('progressNote').value.trim();
+
+      // 유효성 검사
+      if (!week || week < 1) {
+        alert('올바른 주차를 입력해주세요.');
+        return;
+      }
+
+      if (isNaN(percentage) || percentage < 0 || percentage > 100) {
+        alert('진행률은 0-100 사이의 숫자여야 합니다.');
+        return;
+      }
+
+      // 기존 데이터에서 같은 주차 제거 (덮어쓰기)
+      progressData = progressData.filter(d => d.week !== week);
+      
+      // 새 데이터 추가
+      progressData.push({
+        week: week,
+        percentage: percentage,
+        note: note,
+        date: new Date().toISOString().split('T')[0] // YYYY-MM-DD 형식
+      });
+
+      // 주차 순서로 정렬
+      progressData.sort((a, b) => a.week - b.week);
+
+      // 저장 및 차트 업데이트
+      saveProgressData(progressData);
+      initChart();
+      toggleProgressInput();
+
+      alert(`${week}주차 진행률 ${percentage}%가 저장되었습니다!`);
+    }
+
+    // 페이지 로드 시 차트 초기화
+    document.addEventListener('DOMContentLoaded', function() {
+      initChart();
+    });
+
   </script>
 </body>
 </html> 
